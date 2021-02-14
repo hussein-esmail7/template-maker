@@ -3,9 +3,9 @@
 
 /*
 template.c
-Hussein Esmail
-Created: 2021 02 13
-Updated: 2021 02 13
+[CREATOR]
+Created: [DATE]
+Updated: [DATE]
 Terminal command to compile file to an executable:
     gcc -o name filename.c
     ./name

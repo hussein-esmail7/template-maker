@@ -2,16 +2,16 @@ package template;
 
 /*
 Program Name: template.java
-Created by: Hussein Esmail
-Created: 2021 02 13
-Updated: 2021 02 13
+Created by [CREATOR]
+Created: [DATE]
+Updated: [DATE]
 Description: [DESCROPTION]
  */
 
 public class template { 
 	
 	/**
-	 * @author Hussein Esmail
+	 * @author [CREATOR]
 	 * @param args
 	 */
 	public static void main(String[] args) {

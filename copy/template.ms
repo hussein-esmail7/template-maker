@@ -1,6 +1,6 @@
 .TL
 template.ms
 .AU
-Hussein Esmail
+[CREATOR]
 .PP
 This is a generic paragraph
