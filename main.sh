@@ -27,6 +27,9 @@ USERNAME=$(id -F) # If this cannot be run, run $(whoami) instead
 # Default file name
 TEMPLATE_NAME="template"
 
+# Default template folder path (where all the template files are stored)
+TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
+
 # Source the config file
 CONFIG=$HOME/.config/template-maker/config
 if [ -f "$CONFIG" ]; then
@@ -38,12 +41,18 @@ if [ -f "$CONFIG" ]; then
 fi
 
 # Setting prompt text
-PS3='$PROMPT_TEXT'
+PS3=$PROMPT_TEXT
 
 # Error handling in case of empty strings in config
-[[ -z "$USERNAME" ]] || USERNAME=$(whoami) 
-[[ -z "$TEMPLATE_NAME"]] || TEMPLATE_NAME="template"
-
+if [ -z "$USERNAME" ]; then
+    USERNAME=$(whoami) 
+fi
+if [ -z "$TEMPLATE_NAME" ]; then  
+    TEMPLATE_NAME="template"
+fi
+if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "/", add it there
+    TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
+fi
 # Variable for the file name will be stored here
 file_name=""
 
@@ -88,10 +97,13 @@ function name_that_file() {
 }
 
 function fill_in_info() {
-    file_text="${file_text/[DATE]/$DATE_FORMAT}"            # Replace the [DATE] with the actual date with the proper formatting
-    file_text="${file_text/[CREATOR]/$USRNAME}"             # Replace [CREATOR] with the user's actual name
-    file_text="${file_text/[FILE NAME]/$file_name}"         # Replace all mentions of the file's own name with the actual name
-    file_text="${file_text/[FILE FRONT]/${file_name%.*}}"   # File name but without the extension. Mainly used for Java
+    # Format: variable=${variable//ReplaceFrom/ReplaceTo}
+    # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
+    # "[DATE]" doesn't work, so "\[DATE\]" has to be used
+    file_text=${file_text//\[DATE\]/$DATE_FORMAT}            # Replace the [DATE] with the actual date with the proper formatting
+    file_text=${file_text//\[CREATOR\]/$USERNAME}            # Replace [CREATOR] with the user's actual name
+    file_text=${file_text//\[FILE NAME\]/$file_name}         # Replace all mentions of the file's own name with the actual name
+    file_text=${file_text//\[FILE FRONT\]/${file_name%.*}}   # File name but without the extension. Mainly used for Java
 }
 
 select option in "${options[@]}" # Asks for the option choice
@@ -100,58 +112,66 @@ do
     case "${options_reverse[$option]}" in
         0) # C programming file
             name_that_file "$TEMPLATE_NAME" "c"
-            file_text=$(cat copy/template.c)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.c)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         1) # C++ programming file
             name_that_file "$TEMPLATE_NAME" "cpp"
-            file_text=$(cat copy/template.cpp)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.cpp)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         2) # CSS programming file
             name_that_file "style" "css"
-            file_text=$(cat copy/style.css)
+            file_text=$(cat ${TEMPLATE_FOLDER}style.css)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         3) # HTML File
             name_that_file "index" "html"
-            file_text=$(cat copy/index.html)
+            file_text=$(cat ${TEMPLATE_FOLDER}index.html)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         4) # Java programming file
             name_that_file "$TEMPLATE_NAME" "java"
-            file_text=$(cat copy/template.java)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.java)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         5) # Groff markup file
             name_that_file "$TEMPLATE_NAME" "ms"
-            file_text=$(cat copy/template.ms)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.ms)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         6) # Python programming file
             name_that_file "$TEMPLATE_NAME" "py"
-            file_text=$(cat copy/template.py)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.py)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         7) # Bash shell script
             name_that_file "$TEMPLATE_NAME" "sh"
-            file_text=$(cat copy/template.sh)
+            file_text=$(cat ${TEMPLATE_FOLDER}template.sh)
             fill_in_info
-            file_text > "$file_name"
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
             exit 0
             ;;
         *) echo "Invalid option: '$REPLY'";;
