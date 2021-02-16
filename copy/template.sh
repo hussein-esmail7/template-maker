@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# template.sh
+# [FILE NAME]
 # [CREATOR]
 # Created: [DATE]
 # Updated: [DATE]

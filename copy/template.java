@@ -1,14 +1,14 @@
-package template;
+package [FILE FRONT];
 
 /*
-Program Name: template.java
+[FILE NAME]
 Created by [CREATOR]
 Created: [DATE]
 Updated: [DATE]
 Description: [DESCROPTION]
  */
 
-public class template { 
+public class [FILE FRONT] { 
 	
 	/**
 	 * @author [CREATOR]

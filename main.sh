@@ -43,8 +43,12 @@ PS3='$PROMPT_TEXT'
 # Error handling in case of empty strings in config
 [[ -z "$USERNAME" ]] || USERNAME=$(whoami) 
 [[ -z "$TEMPLATE_NAME"]] || TEMPLATE_NAME="template"
-# Varialbe for the file name will be stored here
+
+# Variable for the file name will be stored here
 file_name=""
+
+# Text from the template file will be stored here
+file_text=""
 
 # List of file types to ask
 # The StackExchance answer I found this from also 
@@ -83,48 +87,71 @@ function name_that_file() {
     fi
 }
 
+function fill_in_info() {
+    file_text="${file_text/[DATE]/$DATE_FORMAT}"            # Replace the [DATE] with the actual date with the proper formatting
+    file_text="${file_text/[CREATOR]/$USRNAME}"             # Replace [CREATOR] with the user's actual name
+    file_text="${file_text/[FILE NAME]/$file_name}"         # Replace all mentions of the file's own name with the actual name
+    file_text="${file_text/[FILE FRONT]/${file_name%.*}}"   # File name but without the extension. Mainly used for Java
+}
+
 select option in "${options[@]}" # Asks for the option choice
 do
     # case $option in 
     case "${options_reverse[$option]}" in
         0) # C programming file
             name_that_file "$TEMPLATE_NAME" "c"
-            printf "#include <stdio.h>\n#include <string.h> // Used for strings, checking equalness, copying strings, etc.\n\n/*\n%s\n%s\nCreated: %s\nUpdated: %s\nTerminal command to compile file to an executable:\n    gcc -o name filename.c\n    ./name\nTerminal command to compile multiple files into one executable:\n    gcc -Wall name filename.c\n    ./name\nDescription: [DESCRIPTION]\n*/\n\nint main(void) {\n   // CODE HERE\n   \n   return 0;\n}\n" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT" > "$file_name"
+            file_text=$(cat copy/template.c)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         1) # C++ programming file
             name_that_file "$TEMPLATE_NAME" "cpp"
-            printf "#include <cstdio>\n#include <cstdlib>\n#include <iostream>\nusing namespace std;\n\n/*\n%s\n%s\nCreated: %s\nUpdated: %s\nTerminal command to run file:\n    g++ -o name filename.cpp && ./name\nDescription: [DESCRIPTION]\n*/\n\nint main(int nNumberOfArgs, char* pszArgs[]) {\n    // CODE HERE\n    return 0;\n}" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT" > "$file_name"
+            file_text=$(cat copy/template.cpp)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         2) # CSS programming file
             name_that_file "style" "css"
-            printf "/*\n%s\nWritten by %s\nCreated: %s\nUpdated: %s\n*/\n\n.body {\n}\n" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT"> "$file_name"
+            file_text=$(cat copy/style.css)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         3) # HTML File
             name_that_file "index" "html"
-            printf "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head> <!-- HEADER -->\n    <title>TITLE OF PAGE</title> <!--TODO: Title of page-->\n    <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" media=\"screen\"/>\n    <meta charset='utf-8'>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n</head> <!-- HEADER (end) -->\n<body class=\"background\">  <!-- BODY -->\n	<div class=\"topnav\">\n        <!-- TODO: Navigation bar\n		<a class=\"active\" href=\"#\">THIS PAGE NAME ON MENU BAR</a>\n		<a href=\"URL.html\">OTHER PAGES IN NAVE BAR</a>\n        -->\n	</div>\n    <!-- TODO: CODE HERE (rest of content) -->\n    \n</body> <!-- BODY (end) -->\n<footer style=\"font-size: small;\">  <!-- FOOTER -->\n    <p>\n        <!--TODO: Email here-->\n        Send me an <a href=\"mailto:EMAIL\" class=\"url\">email</a>!\n    </p>\n</footer> <!-- FOOTER (end) -->\n</html>" > "$file_name"
+            file_text=$(cat copy/index.html)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         4) # Java programming file
             name_that_file "$TEMPLATE_NAME" "java"
-            printf "package %s;\n\n/*\nProgram Name: %s\nCreated by: %s\nCreated: %s\nUpdated: %s\nDescription: [DESCROPTION]\n */\n\npublic class %s { \n	\n	/**\n	 * @author %s\n	 * @param args\n	 */\n	public static void main(String[] args) {\n		// Code here\n		\n		\n	}\n	\n}\n" "${file_name%.*}" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT" "${file_name%.*}" "$USERNAME" > "$file_name"
+            file_text=$(cat copy/template.java)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         5) # Groff markup file
             name_that_file "$TEMPLATE_NAME" "ms"
-            printf ".TL\n%s\n.AU\n%s\n.PP\nThis is a generic paragraph" "$file_name" "$USERNAME" > "$file_name"
+            file_text=$(cat copy/template.ms)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         6) # Python programming file
             name_that_file "$TEMPLATE_NAME" "py"
-            printf "import os, sys\n\n'''\n%s\n%s\nCreated: %s\nUpdated: %s\nDescription: [DESCRIPTION]\n'''\n\ndef main():\n    # CODE HERE\n    sys.exit()\n\n\nif __name__ == \"__main__\":\n    main()\n" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT" > "$file_name"
+            file_text=$(cat copy/template.py)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         7) # Bash shell script
             name_that_file "$TEMPLATE_NAME" "sh"
-            printf "#!/bin/bash\n\n: ' %s\n%s\nCreated: %s\nUpdated: %s\nDescription: [DESCRIPTION]\n'\n\n# CODE HERE\n\nexit 0\n" "$file_name" "$USERNAME" "$DATE_FORMAT" "$DATE_FORMAT" > "$file_name"
+            file_text=$(cat copy/template.sh)
+            fill_in_info
+            file_text > "$file_name"
             exit 0
             ;;
         *) echo "Invalid option: '$REPLY'";;
