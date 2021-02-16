@@ -4,12 +4,12 @@
 using namespace std;
 
 /*
-template.cpp
+[FILE NAME]
 [CREATOR]
 Created: [DATE]
 Updated: [DATE]
 Terminal command to run file:
-    g++ -o name filename.cpp && ./name
+    g++ -o name [FILE NAME] && ./name
 Description: [DESCRIPTION]
 */
 
