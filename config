@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# === template-maker config file ===
+# === Created by: Hussein Esmail ===
+
+# USAGE:
+# Whenever you add a variable in this file, make sure there
+# isn't any spaces near the equal sign ("=").
+# Example: 
+#   DATE_FORMAT=$(date '+%Y %m %d')      (GOOD)
+#   DATE_FORMAT = $(date '+%Y %m %d')    (BAD)
+
+# CONFIG IN A DIFFERENT LOCATION?
+# It's cool if you don't like this directory to store your config.
+# All you need to do is type 'source' then the path where your desired 
+# config is at. If your path has a space in it, make sure to use 
+# quotations or the \ for the escape character for ' '.
+# Example: source ~/.config/some/path/to/config
+
+# DATE FORMAT
+# To change the default date format, use the 'DATE_FORMAT'
+# variable, and the format can be defined by seeing the 
+# canonical representations by running 'man date'.
+# A few representations here for an overview:
+#   %c  Century (either 19 or 20) prepended to the abbreviated year.
+#   %y  Year in abbreviated form (e.g., 89 for 1989, 06 for 2006).
+#   %m  Numeric month, a number from 1 to 12.
+#   %d  Day, a number from 1 to 31.
+#   %H  Hour, a number from 0 to 23.
+#   %M  Minutes, a number from 0 to 59.
+#   %s  Seconds, a number from 0 to 61 (59 plus a max of 2 leap seconds).
+# Default DATE_FORMAT=$(date '+%Y %m %d') 
+DATE_FORMAT=$(date '+%Y %m %d') 
+
+# USERNAME
+# This variable is used for the full name of the user in author 
+# sections of files. It can be a command to get it from the 
+# computer, or a hard-coded string.
+# Default USERNAME=$(id -F)
+# If $(id -F) returns empty, it will use $(whoami)
+USERNAME=$(id -F)
+
+# DEFAULT FILENAME
+# You can use this variable if you don't want your files to have the
+# name 'template.whatever'
+# Currently there is no way to change the format of the name if 
+# 'template.whatever' already exists. If you chose 'temp_file' as the name,
+# it will show 'temp_file.whatever' then 'temp_file (1).whatever' 
+# then 'temp_file (1).whatever'...
+# Default: TEMPLATE_NAME="template"
+TEMPLATE_NAME="template"
+# Ignored file types: html, css
+
+# PROMPT_TEXT
+# This variable is used when asking which file type you want to use
+# Default: PROMPT_TEXT='Please enter your file type choice: '
+PROMPT_TEXT='Please enter your file type choice: '
+
+# REPLACE_USERNAME
+# Text that is meant to replace the username that is contained in the files
+# Default: REPLACE_USERNAME="[CREATOR]"
+REPLACE_USERNAME="[CREATOR]"
+
+# REPLACE_DATE
+# Text that is meant to replace the date that is contained in the files
+# Default: REPLACE_DATE="[DATE]"
+REPLACE_DATE="[DATE]"
+
+# If you have any other template files you think can add someone else, 
+# please create an 'Issue' on my Github at 
+# https://github.com/hussein-esmail7/template-maker
+# (Providing a sample template file will also help me)

@@ -32,12 +32,12 @@ TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
 
 # Source the config file
 CONFIG=$HOME/.config/template-maker/config
-if [ -f "$CONFIG" ]; then
-    source "$CONFIG"
-# TODO:
-# else
-#   # Make default config file in default config file location
-#   # echo "Config file made at $CONFIG"
+if [ -f "$CONFIG" ]; then                       # If the config file exists
+    source "$CONFIG"                            # Import the settings from there
+else                                            # If the config file doesn't exist
+    mkdir -p "$HOME/.config/template-maker"     # Make this directory if it doesn't exist
+    cp "${{BASH_SOURCE[0]}/config" "$CONFIG"    # Copy the config file from the template
+    echo "Config file made at $CONFIG"
 fi
 
 # Setting prompt text
@@ -70,6 +70,13 @@ options=(".c (C)"
         ".ms (Groff)"
         ".py (Python)"
         ".sh (Shell Script)")
+
+# Used for checking if template files are in the 'copy directory'
+all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh")
+
+for file in all_filetypes; do
+    ls "${TEMPLATE_FOLDER}/.${file}" | wc -l
+done
 
 # This section of code is so that you don't need to retype all the entries in the 
 # case statement, instead use indexes
