@@ -1,12 +1,29 @@
 #!/usr/bin/env bash
 
-echo "=== INSTALLATION SCRIPT STARTED ==="
+QUIET=0                                     # Default quiet mode = off
+CONFIG_DIR="$HOME/.config/template-maker"
+while test $# -gt 0
+do
+    case "$1" in
+        "test") QUIET=1 ;; # If it receives the 'test' argument (mainly from) `template-maker test` or `brew test template-maker` then make it run quietly
+        *)              ;; # All other arguments do nothing
+    esac
+    shift
+done
 
-echo "==> Config directory created"
-mkdir $HOME/.config/template-maker
-echo "==> Template files created"
-cp -r copy/ $HOME/.config/template-maker/copy/
-echo "==> Config file created"
-cp config $HOME/.config/template-maker/config
-
-echo "=== INSTALLATION SCRIPT ENDED ==="
+if [ $QUIET == 0 ] ; then
+    echo "=== INSTALLATION SCRIPT STARTED ==="
+    echo "==> Config directory created"
+fi
+cd "$CONFIG_DIR" || mkdir $HOME/.config/template-maker
+if [ $QUIET == 0 ] ; then
+    echo "==> Template files created"
+fi
+cp -r copy/ $HOME/.config/template-maker/copy/ 2>/dev/null
+if [ $QUIET == 0 ] ; then
+    echo "==> Config file created"
+fi
+cp config $HOME/.config/template-maker/config 2>/dev/null
+if [ $QUIET == 0 ] ; then
+    echo "=== INSTALLATION SCRIPT ENDED ==="
+fi
