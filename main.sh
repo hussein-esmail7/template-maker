@@ -30,6 +30,11 @@ TEMPLATE_NAME="template"
 # Default template folder path (where all the template files are stored)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
 
+REPLACE_USERNAME="[CREATOR]"
+REPLACE_DATE="[DATE]"
+REPLACE_FILENAME="[FILE NAME]"
+REPLACE_FILEFRONT="[FILE FRONT]"
+
 # Source the config file
 CONFIG=$HOME/.config/template-maker/config
 if [ -f "$CONFIG" ]; then                       # If the config file exists
@@ -107,10 +112,10 @@ function fill_in_info() {
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
     # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
     # "[DATE]" doesn't work, so "\[DATE\]" has to be used
-    file_text=${file_text//\[DATE\]/$DATE_FORMAT}            # Replace the [DATE] with the actual date with the proper formatting
-    file_text=${file_text//\[CREATOR\]/$USERNAME}            # Replace [CREATOR] with the user's actual name
-    file_text=${file_text//\[FILE NAME\]/$file_name}         # Replace all mentions of the file's own name with the actual name
-    file_text=${file_text//\[FILE FRONT\]/${file_name%.*}}   # File name but without the extension. Mainly used for Java
+    file_text=${file_text//$REPLACE_DATE/$DATE_FORMAT}              # Replace the [DATE] with the actual date with the proper formatting
+    file_text=${file_text//$REPLACE_USERNAME/$USERNAME}             # Replace [CREATOR] with the user's actual name
+    file_text=${file_text//$REPLACE_FILENAME/$file_name}            # Replace all mentions of the file's own name with the actual name
+    file_text=${file_text//$REPLACE_FILEFRONT/${file_name%.*}}      # File name but without the extension. Mainly used for Java
 }
 
 select option in "${options[@]}" # Asks for the option choice
