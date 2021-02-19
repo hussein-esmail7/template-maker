@@ -79,8 +79,17 @@ options=(".c (C)"
 # Used for checking if template files are in the 'copy directory'
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh")
 
-for file in all_filetypes; do
-    ls "${TEMPLATE_FOLDER}/.${file}" | wc -l
+for file in "${all_filetypes[@]}"; do
+    amount_files=$(ls "${TEMPLATE_FOLDER}*.${file}" | tr "." "\n")
+    # $(echo $IN | tr ";" "\n")
+    for element in "${amount_files[@]}"; do
+        echo "Element n: $element"
+    done
+    # echo "Last element: ${amount_files[-2]}" 
+    if [ ! "${amount_files[-1]}" == "$file" ] ; then
+        echo "Missing template *.${file} file!"
+        echo "Program will break if you try to make this type of file"
+    fi
 done
 
 # This section of code is so that you don't need to retype all the entries in the 
