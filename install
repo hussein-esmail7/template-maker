@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+echo "=== INSTALLATION SCRIPT STARTED ==="
+
+echo "==> Config directory created"
+mkdir $HOME/.config/template-maker
+echo "==> Template files created"
+cp -r copy/ $HOME/.config/template-maker/copy/
+echo "==> Config file created"
+cp config $HOME/.config/template-maker/config
+
+echo "=== INSTALLATION SCRIPT ENDED ==="
