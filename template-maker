@@ -91,10 +91,11 @@ options=(".c (C)"
         ".java (Java)"
         ".ms (Groff)"
         ".py (Python)"
-        ".sh (Shell Script)")
+        ".sh (Shell Script)"
+        ".tex (LaTeX)")
 
 # Used for checking if template files are in the 'copy directory'
-all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh")
+all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh", "tex")
 
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
@@ -216,6 +217,14 @@ do
         7) # Bash shell script
             name_that_file "$TEMPLATE_NAME" "sh"
             file_text=$(cat ${TEMPLATE_FOLDER}template.sh)
+            fill_in_info
+            echo "$file_name created."
+            echo "$file_text" > "$file_name"
+            exit 0
+            ;;
+        8) # LaTeX Typeset Document
+            name_that_file "$TEMPLATE_NAME" "tex"
+            file_text=$(cat ${TEMPLATE_FOLDER}template.tex)
             fill_in_info
             echo "$file_name created."
             echo "$file_text" > "$file_name"
