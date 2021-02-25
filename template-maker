@@ -46,10 +46,11 @@ TEMPLATE_NAME="template"
 # Default template folder path (where all the template files are stored)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
 
-REPLACE_USERNAME="[CREATOR]"
-REPLACE_DATE="[DATE]"
-REPLACE_FILENAME="[FILE NAME]"
-REPLACE_FILEFRONT="[FILE FRONT]"
+# TODO: Fix configurability
+# REPLACE_USERNAME="\[CREATOR\]"
+# REPLACE_DATE="\[DATE\]"
+# REPLACE_FILENAME="\[FILE NAME\]"
+# REPLACE_FILEFRONT="\[FILE FRONT\]"
 
 # Source the config file
 CONFIG=$HOME/.config/template-maker/config
@@ -96,13 +97,15 @@ options=(".c (C)"
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh")
 
 for file in "${all_filetypes[@]}"; do
-    amount_files=$(ls "${TEMPLATE_FOLDER}*.${file}" | tr "." "\n")
+    amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
+    # echo "$(ls -1 "${TEMPLATE_FOLDER}"*."${file}")"
+    # echo "$amount_files files"
     # $(echo $IN | tr ";" "\n")
-    for element in "${amount_files[@]}"; do
-        echo "Element n: $element"
-    done
+    # for element in "${amount_files[@]}"; do
+    #     echo "Element n: $element"
+    # done
     # echo "Last element: ${amount_files[-2]}" 
-    if [ ! "${amount_files[-1]}" == "$file" ] ; then
+    if [ $amount_files == 0 ] ; then
         echo "Missing template *.${file} file!"
         echo "Program will break if you try to make this type of file"
     fi
@@ -137,10 +140,17 @@ function fill_in_info() {
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
     # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
     # "[DATE]" doesn't work, so "\[DATE\]" has to be used
-    file_text=${file_text//$REPLACE_DATE/$DATE_FORMAT}              # Replace the [DATE] with the actual date with the proper formatting
-    file_text=${file_text//$REPLACE_USERNAME/$USERNAME}             # Replace [CREATOR] with the user's actual name
-    file_text=${file_text//$REPLACE_FILENAME/$file_name}            # Replace all mentions of the file's own name with the actual name
-    file_text=${file_text//$REPLACE_FILEFRONT/${file_name%.*}}      # File name but without the extension. Mainly used for Java
+    
+    # file_text=${file_text//$REPLACE_DATE/$DATE_FORMAT}              # Replace the [DATE] with the actual date with the proper formatting
+    # file_text=${file_text//$REPLACE_USERNAME/$USERNAME}             # Replace [CREATOR] with the user's actual name
+    # file_text=${file_text//$REPLACE_FILENAME/$file_name}            # Replace all mentions of the file's own name with the actual name
+    # file_text=${file_text//$REPLACE_FILEFRONT/${file_name%.*}}      # File name but without the extension. Mainly used for Java
+
+    file_text=${file_text//"[DATE]"/$DATE_FORMAT}                 # Replace the [DATE] with the actual date with the proper formatting
+    file_text=${file_text//"[CREATOR]"/$USERNAME}                 # Replace [CREATOR] with the user's actual name
+    file_text=${file_text//"[FILE NAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
+    file_text=${file_text//"[FILE FRONT]"/${file_name%.*}}        # File name but without the extension. Mainly used for Java
+
 }
 
 select option in "${options[@]}" # Asks for the option choice
