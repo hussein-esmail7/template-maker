@@ -74,20 +74,13 @@ options=(".c (C)"
         ".tex (LaTeX)")
 
 # Used for checking if template files are in the 'copy directory'
-all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh", "tex")
+all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex")
 
 #########################
 # Check for missing files
 #########################
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
-    # echo "$(ls -1 "${TEMPLATE_FOLDER}"*."${file}")"
-    # echo "$amount_files files"
-    # $(echo $IN | tr ";" "\n")
-    # for element in "${amount_files[@]}"; do
-    #     echo "Element n: $element"
-    # done
-    # echo "Last element: ${amount_files[-2]}" 
     if [ $amount_files == 0 ] ; then
         echo "Missing template *.${file} file!"
         echo "Program will break if you try to make this type of file"
