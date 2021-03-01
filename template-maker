@@ -6,28 +6,15 @@
 # is made from a set of files that are placed 
 # in the .config folder.
 
-# Make sure the bash version is compatible with this program
-# case $BASH_VERSION in 
-#     ''|[0-3].*) echo "ERROR: Bash 4.0+ required" >&2; exit 1;; 
-#     esac
-
-# Prompt text. The variable must be named 'PS3' for it to work.
-# Make sure there is a trailing space at the end or it will look weird
-PROMPT_TEXT='Please enter your file type choice: '
-# PS3 is assigned after config is imported in case the user set something different
-# For those interested:
-#   PS1 is the line in terminal that asks for your commands normally. Usually it's "username: current_directory"
-#   PS2 is the line that asks you to keep typing if you type a command with open quotes or something like that
-
-# Today's date, used for file creation date section. You can also change 
-# the date format by reading the manual page at 'man date'
-DATE_FORMAT=$(date '+%Y %m %d')   
-
-# Full name of the user, used in AUTHOR sections of the file that is going to be created.
-USERNAME=$(id -F) # If this cannot be run, run $(whoami) instead
-
-# Default template folder path (where all the template files are stored)
-TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
+#########################
+# Default Variables
+#########################
+PROMPT_TEXT="File type: "           # Prompt text during input
+DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
+USERNAME=$(id -F)                   # Full name of the user
+TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
+all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
+quiet=0                             # Quiet mode is off unless turned on.
 
 #########################
 # Importing Configurations
@@ -38,11 +25,10 @@ if [ -f "$CONFIG" ]; then                       # If the config file exists
 else                                            # If the config file doesn't exist
     mkdir -p "$HOME/.config/template-maker"     # Make this directory if it doesn't exist
     cp "${{BASH_SOURCE[0]}/config" "$CONFIG"    # Copy the config file from the template
-    echo "Config file made at $CONFIG"
+    if [ "$quiet" -ne 1 ]; then
+        echo "Config file made at $CONFIG"
+    fi
 fi
-
-# Setting prompt text
-PS3=$PROMPT_TEXT
 
 # Error handling in case of empty strings in config
 if [ -z "$USERNAME" ]; then
@@ -54,30 +40,24 @@ fi
 if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "/", add it there
     TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
 fi
-# Variable for the file name will be stored here
-file_name=""
 
-# Text from the template file will be stored here
-file_text=""
-
-# Used for checking available file types && if template file is in 'copy' directory
-all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex")
 
 #########################
 # Check for missing files
 #########################
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
-    if [ $amount_files == 0 ] ; then
+    if [[ $amount_files == 0 && "$quiet" -ne 1 ]] ; then
         echo "Missing template *.${file} file!"
         echo "Program will break if you try to make this type of file"
     fi
 done
 
 # This function finds a filename that does not exist already so it doesn't override any existing files
-function name_that_file() { 
+function make_file() { 
     # ${1} = file name without extension
     # ${2} = file extension without the ".". (Ex: a Python file will be "py", not ".py")
+    # ${3} = template file name that is in the template folder
     if [[ ! -z "$shebang" || "$shebang" != "" ]]; then
         template_name="${shebang}.${2}"     # If given a filename in arguments, use that to name the file
     else
@@ -93,9 +73,10 @@ function name_that_file() {
     else                                            # If the original file name is available
         file_name="${1}.${2}"
     fi
-}
 
-function fill_in_info() {
+    file_text=$(cat ${TEMPLATE_FOLDER}${3})
+
+    # Replacing with session-specific information
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
     # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
     file_text=${file_text//"[DATE]"/$DATE_FORMAT}                 # Replace the [DATE] with the actual date with the proper formatting
@@ -103,6 +84,12 @@ function fill_in_info() {
     file_text=${file_text//"[FILE NAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
     file_text=${file_text//"[FILE FRONT]"/${file_name%.*}}        # File name but without the extension. Mainly used for Java
 
+    if [ "$quiet" -ne 1 ]; then # If quiet mode is off
+        echo "$file_name created."
+    fi
+    echo "$file_text" > "$file_name"
+
+    exit 0
 }
 
 #########################
@@ -112,7 +99,7 @@ user_chose_filetype=0
 while getopts f:h:e: flag
 do
     case "${flag}" in
-        f)  # Filename
+        "f")  # Filename
             file_extension="${OPTARG##*.}"              # File extension only
             TEMPLATE_NAME=${OPTARG%"$file_extension"}   # File name (total text minus the extension)
             TEMPLATE_NAME="${TEMPLATE_NAME::-1}" # Remove the "." at the end (Otherwise it would make 'hello..tex' or similar).
@@ -121,21 +108,28 @@ do
                 user_chose_filetype=1
             fi
         ;;
-        h) # Help message
+        "h") # Help message
             echo "=== template-maker ==="
             echo "Help message here"
+            echo "-h:   Print this message."
+            echo "-f:   Input the file name. If you provide an extension here, it will automatically recognize it."
+            echo "-e:   Extension of the output file. If an extension is provided, the program won't have to ask you for a file type."
+            echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
             # --test-install
             # -h, --help
             exit 0
         ;;
-        e) # File extension
+        "e") # File extension
             file_extension="${OPTARG##*.}"      # File extension only
             user_chose_filetype=1
         ;;
-        test-install)
+        "-test-install")
             # ./install
-            echo "true"
+            echo "true" # Has to be here
             exit 0
+        ;;
+        "q") # Quiet mode
+            quiet=1
         ;;
     esac
 done
@@ -143,101 +137,36 @@ done
 #########################
 # Asks for the option choice
 #########################
-if [ "$user_chose_filetype" -eq 0 ]; then # If user hasn't chosen 
+if [ "$user_chose_filetype" -eq 0 ]; then # If user hasn't chosen a file type in args
+    # 'echo' statements in this block are exempt from quiet mode 
+    # because required if a file type isn't given
     echo "What file do you want to create?"
-    for file_type in "${all_filetypes[@]}"; do
+    for file_type in "${all_filetypes[@]}"; do # Print all the file types
         echo ".${file_type}"
     done
-    echo -n "File type: "
-    read file_extension
-    file_extension=$(echo "${file_extension##*.}" | tr '[:upper:]' '[:lower:]') # Get whatever's after the last "." all lowercase
+    echo -n "$PROMPT_TEXT"
+    read file_extension # Read the user input
+    # Format the user input (get whatever's after the last "." + make all lowercase)
+    file_extension=$(echo "${file_extension##*.}" | tr '[:upper:]' '[:lower:]')
 fi
 
-# select option in "${options[@]}" 
-# do
+#########################
+# Figure out what the user typed + Call the make_file 
+# function that (you guessed it) makes the file
+#########################
 case "$file_extension" in 
-# case "${options_reverse[$option]}" in
-    "exit") # Exit the program
-        exit 0
-        ;;
-    "q")
-        exit 0
-        ;;
-    "c") # C programming file
-        name_that_file "$TEMPLATE_NAME" "c"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.c)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "cpp") # C++ programming file
-        name_that_file "$TEMPLATE_NAME" "cpp"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.cpp)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "css") # CSS programming file
-        name_that_file "style" "css"
-        file_text=$(cat ${TEMPLATE_FOLDER}style.css)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "html") # HTML File
-        name_that_file "index" "html"
-        file_text=$(cat ${TEMPLATE_FOLDER}index.html)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "java") # Java programming file
-        name_that_file "$TEMPLATE_NAME" "java"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.java)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "ms") # Groff markup file
-        name_that_file "$TEMPLATE_NAME" "ms"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.ms)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "py") # Python programming file
-        name_that_file "$TEMPLATE_NAME" "py"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.py)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "sh") # Bash shell script
-        name_that_file "$TEMPLATE_NAME" "sh"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.sh)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    "tex") # LaTeX Typeset Document
-        name_that_file "$TEMPLATE_NAME" "tex"
-        file_text=$(cat ${TEMPLATE_FOLDER}template.tex)
-        fill_in_info
-        echo "$file_name created."
-        echo "$file_text" > "$file_name"
-        exit 0
-        ;;
-    *) echo "Invalid option: '$REPLY'";;
+    "exit") exit 0                                              ;;  # Exit the program
+    "q")    exit 0                                              ;;  # Exit the program
+    "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
+    "cpp")  make_file "$TEMPLATE_NAME" "cpp" "template.cpp"     ;;  # C++ programming file
+    "css")  make_file "style" "css" "style.css"                 ;;  # CSS programming file
+    "html") make_file "index" "html" "index.html"               ;;  # HTML File
+    "java") make_file "$TEMPLATE_NAME" "java" "template.java"   ;;  # Java programming file
+    "ms")   make_file "$TEMPLATE_NAME" "ms" "template.ms"       ;;  # Groff markup file
+    "py")   make_file "$TEMPLATE_NAME" "py" "template.py"       ;;  # Python programming file
+    "sh")   make_file "$TEMPLATE_NAME" "sh" "template.sh"       ;;  # Bash shell script
+    "tex")  make_file "$TEMPLATE_NAME" "tex" "template.tex"     ;;  # LaTeX Typeset Document
+    *)      echo "Invalid option: '$REPLY'"; exit 1             ;;  # If user types wacky stuff
 esac
-# done
 
 exit 0
-

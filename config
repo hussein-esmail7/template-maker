@@ -53,28 +53,28 @@ TEMPLATE_NAME="template"
 
 # PROMPT_TEXT
 # This variable is used when asking which file type you want to use
-# Default: PROMPT_TEXT='Please enter your file type choice: '
-PROMPT_TEXT='Please enter your file type choice: '
+# Default: PROMPT_TEXT="File type: "
+PROMPT_TEXT="File type: "
 
-# REPLACE_USERNAME
+# REPLACE_USERNAME (COMPATIBILITY NOT ADDED YET)
 # Text that is meant to replace the username that is contained in the files
 # Default: REPLACE_USERNAME="[CREATOR]"
-REPLACE_USERNAME="[CREATOR]"
+# REPLACE_USERNAME="[CREATOR]"
 
-# REPLACE_DATE
+# REPLACE_DATE (COMPATIBILITY NOT ADDED YET)
 # Text that is meant to replace the date that is contained in the files
 # Default: REPLACE_DATE="[DATE]"
-REPLACE_DATE="[DATE]"
+# REPLACE_DATE="[DATE]"
 
-# REPLACE_FILENAME
+# REPLACE_FILENAME (COMPATIBILITY NOT ADDED YET)
 # Text that is meant to replace the file name that is contained in the files
 # Default: REPLACE_FILENAME="[FILE NAME]"
-REPLACE_FILENAME="[FILE NAME]"
+# REPLACE_FILENAME="[FILE NAME]"
 
-# REPLACE_FILEFRONT
+# REPLACE_FILEFRONT (COMPATIBILITY NOT ADDED YET)
 # Text that is meant to replace the front of the file name that is contained in the files
 # Default: REPLACE_FILEFRONT="[FILE FRONT]"
-REPLACE_FILEFRONT="[FILE FRONT]"
+# REPLACE_FILEFRONT="[FILE FRONT]"
 
 # If you have any other template files you think can add someone else, 
 # please create an 'Issue' on my Github at 
