@@ -60,20 +60,7 @@ file_name=""
 # Text from the template file will be stored here
 file_text=""
 
-# List of file types to ask
-# The StackExchance answer I found this from also 
-# included a 'Quit' option but the user can just press ^C || ^D
-options=(".c (C)"
-        ".cpp (C++)"
-        ".css (CSS)"
-        ".html (HTML)"
-        ".java (Java)"
-        ".ms (Groff)"
-        ".py (Python)"
-        ".sh (Shell Script)"
-        ".tex (LaTeX)")
-
-# Used for checking if template files are in the 'copy directory'
+# Used for checking available file types && if template file is in 'copy' directory
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex")
 
 #########################
@@ -85,14 +72,6 @@ for file in "${all_filetypes[@]}"; do
         echo "Missing template *.${file} file!"
         echo "Program will break if you try to make this type of file"
     fi
-done
-
-# This section of code is so that you don't need to retype all the entries in the 
-# case statement, instead use indexes
-declare -A options_reverse=()       # Create an associative array
-for idx in "${!options[@]}"; do     # For each item in the options array
-  val=${options[$idx]}              
-  options_reverse[$val]=$idx        # entry of $options is = index, number = the value
 done
 
 # This function finds a filename that does not exist already so it doesn't override any existing files
