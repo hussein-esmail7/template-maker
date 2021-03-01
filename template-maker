@@ -2,23 +2,9 @@
 
 # === PROGRAM DESCRIPTION ===
 # This program generates a template 
-# file for the chosen file type
-
-if [ ! $# -eq 0 ]
-  then
-    echo "Arguments supplied"
-    for var in "$@"
-    do
-        # Used by running `template-maker test` or `brew test template-maker`
-        if [ "$var" == "test" ] ; then
-            ./install
-            echo "true"
-            exit 0
-        # Handle other arguments here later
-        fi
-        
-    done
-fi
+# file for the chosen file type. The template
+# is made from a set of files that are placed 
+# in the .config folder.
 
 # Make sure the bash version is compatible with this program
 case $BASH_VERSION in 
@@ -40,20 +26,13 @@ DATE_FORMAT=$(date '+%Y %m %d')
 # Full name of the user, used in AUTHOR sections of the file that is going to be created.
 USERNAME=$(id -F) # If this cannot be run, run $(whoami) instead
 
-# Default file name
-TEMPLATE_NAME="template"
-
 # Default template folder path (where all the template files are stored)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy"
 
-# TODO: Fix configurability
-# REPLACE_USERNAME="\[CREATOR\]"
-# REPLACE_DATE="\[DATE\]"
-# REPLACE_FILENAME="\[FILE NAME\]"
-# REPLACE_FILEFRONT="\[FILE FRONT\]"
-
-# Source the config file
-CONFIG=$HOME/.config/template-maker/config
+#########################
+# Importing Configurations
+#########################
+CONFIG=$HOME/.config/template-maker/config      # Source the config file
 if [ -f "$CONFIG" ]; then                       # If the config file exists
     source "$CONFIG"                            # Import the settings from there
 else                                            # If the config file doesn't exist
@@ -70,7 +49,7 @@ if [ -z "$USERNAME" ]; then
     USERNAME=$(whoami) 
 fi
 if [ -z "$TEMPLATE_NAME" ]; then  
-    TEMPLATE_NAME="template"
+    TEMPLATE_NAME="template" # Default file name
 fi
 if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "/", add it there
     TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
@@ -97,6 +76,9 @@ options=(".c (C)"
 # Used for checking if template files are in the 'copy directory'
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh", "tex")
 
+#########################
+# Check for missing files
+#########################
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
     # echo "$(ls -1 "${TEMPLATE_FOLDER}"*."${file}")"
@@ -124,7 +106,11 @@ done
 function name_that_file() { 
     # ${1} = file name without extension
     # ${2} = file extension without the ".". (Ex: a Python file will be "py", not ".py")
-    template_name="${1}.${2}"
+    if [[ ! -z "$shebang" || "$shebang" != "" ]]; then
+        template_name="${shebang}.${2}"     # If given a filename in arguments, use that to name the file
+    else
+        template_name="${1}.${2}"           # If not given any arguments, use the default template name
+    fi 
     counter=0
     if [ -f "$template_name" ] ; then               # If the file already exists in the directory
         while [ -f "$template_name" ] ; do          # While the next file exists, find another name  
@@ -140,13 +126,6 @@ function name_that_file() {
 function fill_in_info() {
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
     # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
-    # "[DATE]" doesn't work, so "\[DATE\]" has to be used
-    
-    # file_text=${file_text//$REPLACE_DATE/$DATE_FORMAT}              # Replace the [DATE] with the actual date with the proper formatting
-    # file_text=${file_text//$REPLACE_USERNAME/$USERNAME}             # Replace [CREATOR] with the user's actual name
-    # file_text=${file_text//$REPLACE_FILENAME/$file_name}            # Replace all mentions of the file's own name with the actual name
-    # file_text=${file_text//$REPLACE_FILEFRONT/${file_name%.*}}      # File name but without the extension. Mainly used for Java
-
     file_text=${file_text//"[DATE]"/$DATE_FORMAT}                 # Replace the [DATE] with the actual date with the proper formatting
     file_text=${file_text//"[CREATOR]"/$USERNAME}                 # Replace [CREATOR] with the user's actual name
     file_text=${file_text//"[FILE NAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
@@ -154,85 +133,139 @@ function fill_in_info() {
 
 }
 
-select option in "${options[@]}" # Asks for the option choice
+#########################
+# Arguments handled here
+#########################
+user_chose_filetype=0
+while getopts f:h:e: flag
 do
-    # case $option in 
-    case "${options_reverse[$option]}" in
-        0) # C programming file
-            name_that_file "$TEMPLATE_NAME" "c"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.c)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
+    case "${flag}" in
+        f)  # Filename
+            file_extension="${OPTARG##*.}"              # File extension only
+            TEMPLATE_NAME=${OPTARG%"$file_extension"}   # File name (total text minus the extension)
+            TEMPLATE_NAME="${TEMPLATE_NAME::-1}" # Remove the "." at the end (Otherwise it would make 'hello..tex' or similar).
+            # echo "Base set to $file_extension"
+            if [ -n "$file_extension" ]; then # If file_extension is not empty
+                user_chose_filetype=1
+            fi
+        ;;
+        h) # Help message
+            echo "=== template-maker ==="
+            echo "Help message here"
+            # --test-install
+            # -h, --help
             exit 0
-            ;;
-        1) # C++ programming file
-            name_that_file "$TEMPLATE_NAME" "cpp"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.cpp)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
+        ;;
+        e) # File extension
+            file_extension="${OPTARG##*.}"      # File extension only
+            user_chose_filetype=1
+        ;;
+        test-install)
+            # ./install
+            echo "true"
             exit 0
-            ;;
-        2) # CSS programming file
-            name_that_file "style" "css"
-            file_text=$(cat ${TEMPLATE_FOLDER}style.css)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        3) # HTML File
-            name_that_file "index" "html"
-            file_text=$(cat ${TEMPLATE_FOLDER}index.html)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        4) # Java programming file
-            name_that_file "$TEMPLATE_NAME" "java"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.java)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        5) # Groff markup file
-            name_that_file "$TEMPLATE_NAME" "ms"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.ms)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        6) # Python programming file
-            name_that_file "$TEMPLATE_NAME" "py"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.py)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        7) # Bash shell script
-            name_that_file "$TEMPLATE_NAME" "sh"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.sh)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        8) # LaTeX Typeset Document
-            name_that_file "$TEMPLATE_NAME" "tex"
-            file_text=$(cat ${TEMPLATE_FOLDER}template.tex)
-            fill_in_info
-            echo "$file_name created."
-            echo "$file_text" > "$file_name"
-            exit 0
-            ;;
-        *) echo "Invalid option: '$REPLY'";;
+        ;;
     esac
 done
+
+#########################
+# Asks for the option choice
+#########################
+if [ "$user_chose_filetype" -eq 0 ]; then # If user hasn't chosen 
+    echo "What file do you want to create?"
+    for file_type in "${all_filetypes[@]}"; do
+        echo ".${file_type}"
+    done
+    echo -n "File type: "
+    read file_extension
+    file_extension=$(echo "${file_extension##*.}" | tr '[:upper:]' '[:lower:]') # Get whatever's after the last "." all lowercase
+fi
+
+# select option in "${options[@]}" 
+# do
+case "$file_extension" in 
+# case "${options_reverse[$option]}" in
+    "exit") # Exit the program
+        exit 0
+        ;;
+    "q")
+        exit 0
+        ;;
+    "c") # C programming file
+        name_that_file "$TEMPLATE_NAME" "c"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.c)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "cpp") # C++ programming file
+        name_that_file "$TEMPLATE_NAME" "cpp"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.cpp)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "css") # CSS programming file
+        name_that_file "style" "css"
+        file_text=$(cat ${TEMPLATE_FOLDER}style.css)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "html") # HTML File
+        name_that_file "index" "html"
+        file_text=$(cat ${TEMPLATE_FOLDER}index.html)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "java") # Java programming file
+        name_that_file "$TEMPLATE_NAME" "java"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.java)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "ms") # Groff markup file
+        name_that_file "$TEMPLATE_NAME" "ms"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.ms)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "py") # Python programming file
+        name_that_file "$TEMPLATE_NAME" "py"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.py)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "sh") # Bash shell script
+        name_that_file "$TEMPLATE_NAME" "sh"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.sh)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    "tex") # LaTeX Typeset Document
+        name_that_file "$TEMPLATE_NAME" "tex"
+        file_text=$(cat ${TEMPLATE_FOLDER}template.tex)
+        fill_in_info
+        echo "$file_name created."
+        echo "$file_text" > "$file_name"
+        exit 0
+        ;;
+    *) echo "Invalid option: '$REPLY'";;
+esac
+# done
 
 exit 0
 
