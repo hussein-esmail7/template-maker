@@ -155,6 +155,8 @@ fi
 # function that (you guessed it) makes the file
 #########################
 case "$file_extension" in 
+    # FORMAT:
+    # input) make_file <what to name the file> <extension> <template file name in $TEMPLATE_FOLDER> ;;
     "exit") exit 0                                              ;;  # Exit the program
     "q")    exit 0                                              ;;  # Exit the program
     "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
