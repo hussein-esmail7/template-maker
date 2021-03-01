@@ -7,9 +7,9 @@
 # in the .config folder.
 
 # Make sure the bash version is compatible with this program
-case $BASH_VERSION in 
-    ''|[0-3].*) echo "ERROR: Bash 4.0+ required" >&2; exit 1;; 
-    esac
+# case $BASH_VERSION in 
+#     ''|[0-3].*) echo "ERROR: Bash 4.0+ required" >&2; exit 1;; 
+#     esac
 
 # Prompt text. The variable must be named 'PS3' for it to work.
 # Make sure there is a trailing space at the end or it will look weird
