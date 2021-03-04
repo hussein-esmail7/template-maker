@@ -7,11 +7,9 @@
 Created: [DATE]
 Updated: [DATE]
 Terminal command to compile file to an executable:
-    gcc -o name [FILE NAME]
-    ./name
+    gcc -o [FILE FRONT] [FILE NAME] && chmod +x [FILE FRONT] && ./[FILE FRONT]
 Terminal command to compile multiple files into one executable:
-    gcc -Wall name [FILE NAME]
-    ./name
+    gcc [FILE NAME] <Other filenames> -o [FILE FRONT] && chmod +x [FILE FRONT] && ./[FILE FRONT]
 Description: [DESCRIPTION]
 */
 

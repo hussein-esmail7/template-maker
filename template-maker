@@ -15,6 +15,8 @@ USERNAME=$(id -F)                   # Full name of the user
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 quiet=0                             # Quiet mode is off unless turned on.
+open_file=0                         # Open file after it is created.
+user_chose_filetype=0
 
 #########################
 # Importing Configurations
@@ -25,7 +27,7 @@ if [ -f "$CONFIG" ]; then                       # If the config file exists
 else                                            # If the config file doesn't exist
     mkdir -p "$HOME/.config/template-maker"     # Make this directory if it doesn't exist
     cp "${{BASH_SOURCE[0]}/config" "$CONFIG"    # Copy the config file from the template
-    if [ "$quiet" -ne 1 ]; then
+    if [ "$quiet" -eq 0 ]; then
         echo "Config file made at $CONFIG"
     fi
 fi
@@ -47,7 +49,7 @@ fi
 #########################
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
-    if [[ $amount_files == 0 && "$quiet" -ne 1 ]] ; then
+    if [[ $amount_files == 0 && "$quiet" -eq 0 ]] ; then
         echo "Missing template *.${file} file!"
         echo "Program will break if you try to make this type of file"
     fi
@@ -84,10 +86,15 @@ function make_file() {
     file_text=${file_text//"[FILE NAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
     file_text=${file_text//"[FILE FRONT]"/${file_name%.*}}        # File name but without the extension. Mainly used for Java
 
-    if [ "$quiet" -ne 1 ]; then # If quiet mode is off
+    if [ "$quiet" -eq 0 ]; then # If quiet mode is off
         echo "$file_name created."
     fi
     echo "$file_text" > "$file_name"
+
+    if [ "$open_file" -eq 1 ]; then
+        # macOS only for now.
+        open "$file_name"
+    fi
 
     exit 0
 }
@@ -95,7 +102,10 @@ function make_file() {
 #########################
 # Arguments handled here
 #########################
-user_chose_filetype=0
+
+# FIX
+# https://stackoverflow.com/a/14063511/8100123
+
 while getopts f:h:e: flag
 do
     case "${flag}" in
@@ -108,7 +118,11 @@ do
                 user_chose_filetype=1
             fi
         ;;
-        "h") # Help message
+        "e") # File extension
+            file_extension="${OPTARG##*.}"      # File extension only
+            user_chose_filetype=1
+        ;;
+        "-h") # Help message
             echo "=== template-maker ==="
             echo "Help message here"
             echo "-h:   Print this message."
@@ -117,20 +131,28 @@ do
             echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
             # --test-install
             # -h, --help
+            shift   # This is here because -h doesn't take an additional argument
             exit 0
         ;;
-        "e") # File extension
-            file_extension="${OPTARG##*.}"      # File extension only
-            user_chose_filetype=1
+        "o") # Open the new document when created on the default application
+            echo "open mode"
+            open_file=1
+            shift   # This is here because -h doesn't take an additional argument
         ;;
-        "-test-install")
+        "--test-install")
             # ./install
             echo "true" # Has to be here
+            shift   # This is here because -h doesn't take an additional argument
             exit 0
         ;;
-        "q") # Quiet mode
+        "-q") # Quiet mode
             quiet=1
+            shift   # This is here because -h doesn't take an additional argument
         ;;
+        :) # If the user typed it without an argument
+            echo "Option -${OPTARG} requires an argument." >&2
+            exit 1                                              
+        ;; 
     esac
 done
 
