@@ -5,25 +5,62 @@
 % Description: [DESCRIPTION]
 
 \documentclass{article}
+
 \title{[FILE NAME]}
 \author{[CREATOR]}
 \date{\today} % Current date rather than creation date
 
-\usepackage[ % This block contains information used for PDF metadata
-colorlinks=true, 
-pdftitle={[FILE NAME]}, 
-pdfauthor={[CREATOR]}, 
-pdfsubject={Subject here}, % TODO 
-pdfkeywords={}
-]{hyperref}
+% Code colouring
+% https://stackoverflow.com/a/3175141/8100123
+\usepackage{listings}
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage{enumitem}   % Allows numbering by alphabet instead of just numbers
+\usepackage{xcolor}     % Used for specific colours (must be defined before pagecolor!)
+\usepackage{pagecolor}  % Used for setting page colour
+\usepackage{amsmath}    % Used for aligning equations
+\usepackage{hyperref} % This block contains information used for PDF metadata
+\hypersetup{
+    colorlinks=false, 
+    pdfborder={0 0 0},
+    pdftitle={[FILE FRONT]}, 
+    pdfauthor={[CREATOR]}, 
+    pdfsubject={Subject here}, % TODO 
+    pdfkeywords={}
+}
+
+\newcommand{\comment}[1]{}                          % \comment{Multiline comments can go here.}
+\newcommand{\image}[1]{[\textbf{IMAGE MISSING #1}]} % #1 is whatever descriptor you want to display about the image
+
+\pagecolor{white}       % default page colour (\newpagecolor{c} can set as well in document)
+\color{black}           % default text colour
 
 \begin{document} % Official beginning of the document. 
 \maketitle
 
-\section{Introduction}
-
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Text here
 %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
 
 \end{document}
