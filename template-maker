@@ -16,7 +16,7 @@ TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all t
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.
-user_chose_filetype=0
+user_chose_filetype=0               # Changed if user types an extension in the arguments
 
 #########################
 # Importing Configurations
@@ -103,58 +103,31 @@ function make_file() {
 # Arguments handled here
 #########################
 
-# FIX
-# https://stackoverflow.com/a/14063511/8100123
+filename_tmp="'$*'"                                     # This is a collection of all arguments separated by space
+if [ "$filename_tmp" == "-h" ]; then                    # Help message
+    echo "=== template-maker ==="
+    echo "Help message here"
+    echo "-h:   Print this message."
+    echo "-f:   Input the file name. If you provide an extension here, it will automatically recognize it."
+    echo "-e:   Extension of the output file. If an extension is provided, the program won't have to ask you for a file type."
+    echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
+    exit 0                                              # Exit the program after this message is printed
+else    # If it isn't a help command, it's a filename
+    num_dots=$(echo "${filename_tmp}" | awk -F"." '{print NF-1}')
+    filename_tmp="${filename_tmp:1}"                    # Remove the ' at the beginning of the string
+    filename_tmp="${filename_tmp::-1}"                  # Remove the ' at the end of the string
+    if [ "$num_dots" -ge 1 ]; then                      # If there is a "." (whether a file type is after it comes later)
+        file_extension="${filename_tmp##*.}"            # File extension only
+        TEMPLATE_NAME=${filename_tmp%.$file_extension}  # File name (total text minus the extension)
+        TEMPLATE_NAME="${TEMPLATE_NAME%.*}"             # Remove the file extension (or else it will have the extension twice in the name)
+        if [ ! -z "$file_extension" ]; then             # If there is a file extension is given
+            user_chose_filetype=1                       # Do not ask for extension type
+        fi                                              # No else statement because user_chose_filetype is 0 by default
+    else                                                # If there were no "." which may have indicated a file type
+        TEMPLATE_NAME="$filename_tmp"
+    fi
+fi
 
-while getopts f:h:e: flag
-do
-    case "${flag}" in
-        "f")  # Filename
-            file_extension="${OPTARG##*.}"              # File extension only
-            TEMPLATE_NAME=${OPTARG%"$file_extension"}   # File name (total text minus the extension)
-            TEMPLATE_NAME="${TEMPLATE_NAME::-1}" # Remove the "." at the end (Otherwise it would make 'hello..tex' or similar).
-            # echo "Base set to $file_extension"
-            if [ -n "$file_extension" ]; then # If file_extension is not empty
-                user_chose_filetype=1
-            fi
-        ;;
-        "e") # File extension
-            file_extension="${OPTARG##*.}"      # File extension only
-            user_chose_filetype=1
-        ;;
-        "-h") # Help message
-            echo "=== template-maker ==="
-            echo "Help message here"
-            echo "-h:   Print this message."
-            echo "-f:   Input the file name. If you provide an extension here, it will automatically recognize it."
-            echo "-e:   Extension of the output file. If an extension is provided, the program won't have to ask you for a file type."
-            echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
-            # --test-install
-            # -h, --help
-            shift   # This is here because -h doesn't take an additional argument
-            exit 0
-        ;;
-        "o") # Open the new document when created on the default application
-            echo "open mode"
-            open_file=1
-            shift   # This is here because -h doesn't take an additional argument
-        ;;
-        "--test-install")
-            # ./install
-            echo "true" # Has to be here
-            shift   # This is here because -h doesn't take an additional argument
-            exit 0
-        ;;
-        "-q") # Quiet mode
-            quiet=1
-            shift   # This is here because -h doesn't take an additional argument
-        ;;
-        :) # If the user typed it without an argument
-            echo "Option -${OPTARG} requires an argument." >&2
-            exit 1                                              
-        ;; 
-    esac
-done
 
 #########################
 # Asks for the option choice
