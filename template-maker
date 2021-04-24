@@ -7,12 +7,7 @@
 # in the .config folder.
 
 
-# TODO:
-# Linux Manjaro terminal returns unwanted output:
-# <output>
-# id: invalid option -- 'F'
-# Try 'id --help' for more information.
-# </output>
+# TODO: In LaTeX Documents, if there are underscores in the file title, replace the underscores with spaces when put as arguments in the file (like \title{}, \pdftitle{}, etc.)
 
 #########################
 # Default Variables
