@@ -6,12 +6,22 @@
 # is made from a set of files that are placed 
 # in the .config folder.
 
+
+# TODO:
+# Linux Manjaro terminal returns unwanted output:
+# <output>
+# id: invalid option -- 'F'
+# Try 'id --help' for more information.
+# </output>
+
 #########################
 # Default Variables
 #########################
 PROMPT_TEXT="File type: "           # Prompt text during input
 DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
-USERNAME=$(id -F)                   # Full name of the user
+# Full name of the user for each OS
+[[ "$OSTYPE" == "linux-gnu"* ]] && USERNAME=$(getent passwd "$(whoami)" | cut -d ':' -f 5)
+[[ "$OSTYPE" == "darwin"* ]]    && USERNAME=$(id -F)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 quiet=0                             # Quiet mode is off unless turned on.
