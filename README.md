@@ -20,7 +20,7 @@ git clone https://github.com/hussein-esmail7/template-maker
 cd template-maker
 ./INSTALL
 ```
-If you want to run this program in Terminal just by typing the program name, you would have to add an alias in your `.bashrc` file. If you do this, you should alias to the `main.sh` file.
+If you want to run this program in Terminal just by typing the program name, you would have to add an alias in your `.bashrc` file. If you do this, you should alias to the `template-maker` file.
 
 ## Running the program
 
