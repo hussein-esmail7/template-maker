@@ -12,6 +12,8 @@
 #########################
 # Default Variables
 #########################
+O_IFS=$IFS                          # backup IFS value
+IFS=""                              # reset IFS value
 PROMPT_TEXT="File type: "           # Prompt text during input
 DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 # Full name of the user for each OS
@@ -19,6 +21,18 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 [[ "$OSTYPE" == "darwin"* ]]    && USERNAME=$(id -F)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
+
+# Expanded descriptions of each file type.
+FILE_EXPLANATIONS[0]="Bash Shell Script Document: .sh"
+FILE_EXPLANATIONS[1]="C Programming Document: .c"
+FILE_EXPLANATIONS[2]="C++ Programming Document: .cpp"
+FILE_EXPLANATIONS[3]="CSS Style Document: .css"
+FILE_EXPLANATIONS[4]="Groff Typesetting Document: .ms"
+FILE_EXPLANATIONS[5]="HTML File: .html"
+FILE_EXPLANATIONS[6]="Java Programming Document: .java"
+FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: .tex"
+FILE_EXPLANATIONS[8]="Python Programming Document: .py"
+
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.
 user_chose_filetype=0               # Changed if user types an extension in the arguments
@@ -133,22 +147,13 @@ else    # If it isn't a help command, it's a filename
     fi
 fi
 
-
 #########################
 # Asks for the option choice
 #########################
-if [ "$user_chose_filetype" -eq 0 ]; then # If user hasn't chosen a file type in args
-    # 'echo' statements in this block are exempt from quiet mode 
-    # because required if a file type isn't given
-    echo "What file do you want to create?"
-    for file_type in "${all_filetypes[@]}"; do # Print all the file types
-        echo ".${file_type}"
-    done
-    echo -n "$PROMPT_TEXT"
-    read file_extension # Read the user input
-    # Format the user input (get whatever's after the last "." + make all lowercase)
-    file_extension=$(echo "${file_extension##*.}" | tr '[:upper:]' '[:lower:]')
-fi
+
+# If user hasn't chosen a file type in args
+# Display the explanations with file types in fzf, and get the response (formatting: Get string after last '.')
+[ "$user_chose_filetype" -eq 0 ]; file_extension=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\.//')
 
 #########################
 # Figure out what the user typed + Call the make_file 
@@ -157,8 +162,6 @@ fi
 case "$file_extension" in 
     # FORMAT:
     # input) make_file <what to name the file> <extension> <template file name in $TEMPLATE_FOLDER> ;;
-    "exit") exit 0                                              ;;  # Exit the program
-    "q")    exit 0                                              ;;  # Exit the program
     "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
     "cpp")  make_file "$TEMPLATE_NAME" "cpp" "template.cpp"     ;;  # C++ programming file
     "css")  make_file "style" "css" "style.css"                 ;;  # CSS programming file
@@ -168,7 +171,10 @@ case "$file_extension" in
     "py")   make_file "$TEMPLATE_NAME" "py" "template.py"       ;;  # Python programming file
     "sh")   make_file "$TEMPLATE_NAME" "sh" "template.sh"       ;;  # Bash shell script
     "tex")  make_file "$TEMPLATE_NAME" "tex" "template.tex"     ;;  # LaTeX Typeset Document
+    "exit" | "q")  exit 0                                       ;;  # Exit the program
     *)      echo "Invalid option: '$REPLY'"; exit 1             ;;  # If user types wacky stuff
 esac
+
+IFS=${O_IFS}    # rollback IFS value
 
 exit 0
