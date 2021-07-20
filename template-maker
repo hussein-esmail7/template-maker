@@ -23,15 +23,17 @@ TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all t
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 
 # Expanded descriptions of each file type.
-FILE_EXPLANATIONS[0]="Bash Shell Script Document: .sh"
-FILE_EXPLANATIONS[1]="C Programming Document: .c"
-FILE_EXPLANATIONS[2]="C++ Programming Document: .cpp"
-FILE_EXPLANATIONS[3]="CSS Style Document: .css"
-FILE_EXPLANATIONS[4]="Groff Typesetting Document: .ms"
-FILE_EXPLANATIONS[5]="HTML File: .html"
-FILE_EXPLANATIONS[6]="Java Programming Document: .java"
-FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: .tex"
-FILE_EXPLANATIONS[8]="Python Programming Document: .py"
+FILE_EXPLANATIONS[0]="Bash Shell Script Document: template.sh"
+FILE_EXPLANATIONS[1]="C Programming Document: template.c"
+FILE_EXPLANATIONS[2]="C++ Programming Document: template.cpp"
+FILE_EXPLANATIONS[3]="CSS Style Document: style.css"
+FILE_EXPLANATIONS[4]="Groff Typesetting Document: template.ms"
+FILE_EXPLANATIONS[5]="HTML File: index.html"
+FILE_EXPLANATIONS[6]="Java Programming Document: template.java"
+FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: template.tex"
+FILE_EXPLANATIONS[8]="LaTeX Theatre Script Document: VCP-Script-Template.tex"
+FILE_EXPLANATIONS[9]="LaTeX Theatre Captions Document: VCP-Captions-Template.tex"
+FILE_EXPLANATIONS[10]="Python Programming Document: template.py"
 
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.
@@ -77,25 +79,25 @@ done
 # This function finds a filename that does not exist already so it doesn't override any existing files
 function make_file() { 
     # ${1} = file name without extension
-    # ${2} = file extension without the ".". (Ex: a Python file will be "py", not ".py")
-    # ${3} = template file name that is in the template folder
+    # ${2} = Desired file name extension
+    file_extension_func=$(echo $2 | sed 's/.*\.//')
     if [[ ! -z "$shebang" || "$shebang" != "" ]]; then
-        template_name="${shebang}.${2}"     # If given a filename in arguments, use that to name the file
+        template_name="${shebang}.$file_extension_func"     # If given a filename in arguments, use that to name the file
     else
-        template_name="${1}.${2}"           # If not given any arguments, use the default template name
+        template_name="${1}.$file_extension_func"           # If not given any arguments, use the default template name
     fi 
     counter=0
     if [ -f "$template_name" ] ; then               # If the file already exists in the directory
         while [ -f "$template_name" ] ; do          # While the next file exists, find another name  
             ((counter=counter+1))                   # Add 1 to the name counter
-            template_name="${1} ($counter).${2}"    # Make a new name (wikk check on next loop)
+            template_name="${1} ($counter).$file_extension_func"    # Make a new name (wikk check on next loop)
         done                                        # Exits loop when it found an unused name
         file_name="$template_name"                  
     else                                            # If the original file name is available
-        file_name="${1}.${2}"
+        file_name="${1}.$file_extension_func"
     fi
 
-    file_text=$(cat ${TEMPLATE_FOLDER}${3})
+    file_text=$(cat ${TEMPLATE_FOLDER}${2})
 
     # Replacing with session-specific information
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
@@ -153,27 +155,29 @@ fi
 
 # If user hasn't chosen a file type in args
 # Display the explanations with file types in fzf, and get the response (formatting: Get string after last '.')
-[ "$user_chose_filetype" -eq 0 ]; file_extension=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\.//')
+[ "$user_chose_filetype" -eq 0 ]; file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\: //')
 
 #########################
 # Figure out what the user typed + Call the make_file 
 # function that (you guessed it) makes the file
 #########################
-case "$file_extension" in 
-    # FORMAT:
-    # input) make_file <what to name the file> <extension> <template file name in $TEMPLATE_FOLDER> ;;
-    "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
-    "cpp")  make_file "$TEMPLATE_NAME" "cpp" "template.cpp"     ;;  # C++ programming file
-    "css")  make_file "style" "css" "style.css"                 ;;  # CSS programming file
-    "html") make_file "index" "html" "index.html"               ;;  # HTML File
-    "java") make_file "$TEMPLATE_NAME" "java" "template.java"   ;;  # Java programming file
-    "ms")   make_file "$TEMPLATE_NAME" "ms" "template.ms"       ;;  # Groff markup file
-    "py")   make_file "$TEMPLATE_NAME" "py" "template.py"       ;;  # Python programming file
-    "sh")   make_file "$TEMPLATE_NAME" "sh" "template.sh"       ;;  # Bash shell script
-    "tex")  make_file "$TEMPLATE_NAME" "tex" "template.tex"     ;;  # LaTeX Typeset Document
-    "exit" | "q")  exit 0                                       ;;  # Exit the program
-    *)      echo "Invalid option: '$REPLY'"; exit 1             ;;  # If user types wacky stuff
-esac
+make_file "$TEMPLATE_NAME" "$file_name_target"
+
+# case "$file_extension" in 
+#     # FORMAT:
+#     # input) make_file <what to name the file> <extension> <template file name in # $TEMPLATE_FOLDER> ;;
+#     "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
+#     "cpp")  make_file "$TEMPLATE_NAME" "cpp" "template.cpp"     ;;  # C++ programming file
+#     "css")  make_file "style" "css" "style.css"                 ;;  # CSS programming file
+#     "html") make_file "index" "html" "index.html"               ;;  # HTML File
+#     "java") make_file "$TEMPLATE_NAME" "java" "template.java"   ;;  # Java programming file
+#     "ms")   make_file "$TEMPLATE_NAME" "ms" "template.ms"       ;;  # Groff markup file
+#     "py")   make_file "$TEMPLATE_NAME" "py" "template.py"       ;;  # Python programming file
+#     "sh")   make_file "$TEMPLATE_NAME" "sh" "template.sh"       ;;  # Bash shell script
+#     "tex")  make_file "$TEMPLATE_NAME" "tex" "template.tex"     ;;  # LaTeX Typeset Document
+#     "exit" | "q")  exit 0                                       ;;  # Exit the program
+#     *)      echo "Invalid option: '$REPLY'"; exit 1             ;;  # If user types wacky stuff
+# esac
 
 IFS=${O_IFS}    # rollback IFS value
 
