@@ -22,18 +22,36 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 
+# Parametrically building options list:
+files=$(ls -1 $TEMPLATE_FOLDER)             # Get a list of all the files in the template dir
+DESCRIPTION_STR="templateDescription: "     # The description string is after this in each file
+counter=0                                   # Array index counter
+for file_item in $files; do                 # For each item in the dir
+    test_str=$(grep "$DESCRIPTION_STR" $file_item | head -1)    # Description string
+    FILE_EXPLANATIONS[$counter]=${test_str#*DESCRIPTION_STR}
+    FILE_EXPLANATIONS[$counter]="${FILE_EXPLANATIONS[counter]}: $file_item"
+    # FILE_EXPLANATIONS[$counter]=$(echo -n ${test_str#*DESCRIPTION_STR} ": " $file_item)  
+    # echo ${FILE_EXPLANATIONS[counter]}
+    # echo ${test_str#*DESCRIPTION_STR}
+    # TODO: Continue here
+    echo $counter
+    counter=$((counter+1))  
+done
+
+
+
 # Expanded descriptions of each file type.
-FILE_EXPLANATIONS[0]="Bash Shell Script Document: template.sh"
-FILE_EXPLANATIONS[1]="C Programming Document: template.c"
-FILE_EXPLANATIONS[2]="C++ Programming Document: template.cpp"
-FILE_EXPLANATIONS[3]="CSS Style Document: style.css"
-FILE_EXPLANATIONS[4]="Groff Typesetting Document: template.ms"
-FILE_EXPLANATIONS[5]="HTML File: index.html"
-FILE_EXPLANATIONS[6]="Java Programming Document: template.java"
-FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: template.tex"
-FILE_EXPLANATIONS[8]="LaTeX Theatre Script Document: VCP-Script-Template.tex"
-FILE_EXPLANATIONS[9]="LaTeX Theatre Captions Document: VCP-Captions-Template.tex"
-FILE_EXPLANATIONS[10]="Python Programming Document: template.py"
+# FILE_EXPLANATIONS[0]="Bash Shell Script Document: template.sh"
+# FILE_EXPLANATIONS[1]="C Programming Document: template.c"
+# FILE_EXPLANATIONS[2]="C++ Programming Document: template.cpp"
+# FILE_EXPLANATIONS[3]="CSS Style Document: style.css"
+# FILE_EXPLANATIONS[4]="Groff Typesetting Document: template.ms"
+# FILE_EXPLANATIONS[5]="HTML File: index.html"
+# FILE_EXPLANATIONS[6]="Java Programming Document: template.java"
+# FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: template.tex"
+# FILE_EXPLANATIONS[8]="LaTeX Theatre Script Document: VCP-Script-Template.tex"
+# FILE_EXPLANATIONS[9]="LaTeX Theatre Captions Document: VCP-Captions-Template.tex"
+# FILE_EXPLANATIONS[10]="Python Programming Document: template.py"
 
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.

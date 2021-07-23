@@ -13,6 +13,10 @@ Terminal command to compile multiple files into one executable:
 Description: [DESCRIPTION]
 */
 
+/* 
+    templateDescription: C Programming Document
+*/
+
 int main(void) {
    // CODE HERE
    

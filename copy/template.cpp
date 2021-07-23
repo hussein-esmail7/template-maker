@@ -13,6 +13,10 @@ Terminal command to run file:
 Description: [DESCRIPTION]
 */
 
+/* 
+    templateDescription: C++ Programming Document
+*/
+
 int main(int nNumberOfArgs, char* pszArgs[]) {
     // CODE HERE
     return 0;

@@ -6,7 +6,11 @@ Created by [CREATOR]
 Created: [DATE]
 Updated: [DATE]
 Description: [DESCROPTION]
- */
+*/
+
+/* 
+    templateDescription: Java Programming Document
+*/
 
 public class [FILE FRONT] { 
 	

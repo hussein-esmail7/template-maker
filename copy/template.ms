@@ -1,3 +1,6 @@
+
+\" templateDescription: Groff Typesetting Document
+
 .TL
 [FILE NAME]
 .AU
