@@ -19,39 +19,20 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 # Full name of the user for each OS
 [[ "$OSTYPE" == "linux-gnu"* ]] && USERNAME=$(getent passwd "$(whoami)" | cut -d ':' -f 5)
 [[ "$OSTYPE" == "darwin"* ]]    && USERNAME=$(id -F)
-TEMPLATE_FOLDER="$HOME/.config/template-maker/copy" # Default folder path (all template files stored here)
+TEMPLATE_FOLDER="$HOME/.config/template-maker/copy/" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 
 # Parametrically building options list:
-files=$(ls -1 $TEMPLATE_FOLDER)             # Get a list of all the files in the template dir
+files=("$TEMPLATE_FOLDER"*)                 # Get a list of all the files in the template dir
 DESCRIPTION_STR="templateDescription: "     # The description string is after this in each file
 counter=0                                   # Array index counter
-for file_item in $files; do                 # For each item in the dir
-    test_str=$(grep "$DESCRIPTION_STR" $file_item | head -1)    # Description string
-    FILE_EXPLANATIONS[$counter]=${test_str#*DESCRIPTION_STR}
-    FILE_EXPLANATIONS[$counter]="${FILE_EXPLANATIONS[counter]}: $file_item"
-    # FILE_EXPLANATIONS[$counter]=$(echo -n ${test_str#*DESCRIPTION_STR} ": " $file_item)  
-    # echo ${FILE_EXPLANATIONS[counter]}
-    # echo ${test_str#*DESCRIPTION_STR}
-    # TODO: Continue here
-    echo $counter
-    counter=$((counter+1))  
+for full_file_path in ${files[@]}; do       # For each item in the dir
+    file_name="${full_file_path##*/}"
+    desc_uncut=$(grep "$DESCRIPTION_STR" "$full_file_path" | head -1)    # Description string
+    desc=$(echo "${desc_uncut##*:}" | xargs)
+    FILE_EXPLANATIONS[$counter]="$desc: $file_name"
+    counter=$((counter+1))                  # Increase array count for next element
 done
-
-
-
-# Expanded descriptions of each file type.
-# FILE_EXPLANATIONS[0]="Bash Shell Script Document: template.sh"
-# FILE_EXPLANATIONS[1]="C Programming Document: template.c"
-# FILE_EXPLANATIONS[2]="C++ Programming Document: template.cpp"
-# FILE_EXPLANATIONS[3]="CSS Style Document: style.css"
-# FILE_EXPLANATIONS[4]="Groff Typesetting Document: template.ms"
-# FILE_EXPLANATIONS[5]="HTML File: index.html"
-# FILE_EXPLANATIONS[6]="Java Programming Document: template.java"
-# FILE_EXPLANATIONS[7]="LaTeX Typesetting Document: template.tex"
-# FILE_EXPLANATIONS[8]="LaTeX Theatre Script Document: VCP-Script-Template.tex"
-# FILE_EXPLANATIONS[9]="LaTeX Theatre Captions Document: VCP-Captions-Template.tex"
-# FILE_EXPLANATIONS[10]="Python Programming Document: template.py"
 
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.
@@ -174,28 +155,12 @@ fi
 # If user hasn't chosen a file type in args
 # Display the explanations with file types in fzf, and get the response (formatting: Get string after last '.')
 [ "$user_chose_filetype" -eq 0 ]; file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\: //')
-
 #########################
 # Figure out what the user typed + Call the make_file 
 # function that (you guessed it) makes the file
 #########################
+# TODO: Only run if file_name_target is not empty 
 make_file "$TEMPLATE_NAME" "$file_name_target"
-
-# case "$file_extension" in 
-#     # FORMAT:
-#     # input) make_file <what to name the file> <extension> <template file name in # $TEMPLATE_FOLDER> ;;
-#     "c")    make_file "$TEMPLATE_NAME" "c" "template.c"         ;;  # C programming file
-#     "cpp")  make_file "$TEMPLATE_NAME" "cpp" "template.cpp"     ;;  # C++ programming file
-#     "css")  make_file "style" "css" "style.css"                 ;;  # CSS programming file
-#     "html") make_file "index" "html" "index.html"               ;;  # HTML File
-#     "java") make_file "$TEMPLATE_NAME" "java" "template.java"   ;;  # Java programming file
-#     "ms")   make_file "$TEMPLATE_NAME" "ms" "template.ms"       ;;  # Groff markup file
-#     "py")   make_file "$TEMPLATE_NAME" "py" "template.py"       ;;  # Python programming file
-#     "sh")   make_file "$TEMPLATE_NAME" "sh" "template.sh"       ;;  # Bash shell script
-#     "tex")  make_file "$TEMPLATE_NAME" "tex" "template.tex"     ;;  # LaTeX Typeset Document
-#     "exit" | "q")  exit 0                                       ;;  # Exit the program
-#     *)      echo "Invalid option: '$REPLY'"; exit 1             ;;  # If user types wacky stuff
-# esac
 
 IFS=${O_IFS}    # rollback IFS value
 
