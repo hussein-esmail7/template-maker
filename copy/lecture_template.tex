@@ -6,7 +6,7 @@
 
 % This file can be found at https://github.com/hussein-esmail7/templates
 
-% Description of THIS file: This is a LaTeX template document for my own course notes at University.
+% templateDescription: LaTeX template document for course notes at University.
 
 % =========================== Variables ===========================
 \newcommand{\myAuthor}              {Hussein Esmail} % Author of the show
@@ -22,14 +22,27 @@
 \newcommand{\myCourseSchedule}      {Weekdays/Times of Day Here} % Ex. MWF 9:00
 \newcommand{\myCourseSection}       {Section Here} % Single letter
 \newcommand{\myCourseLocation}      {Course Location}
-\newcommand{\myTitle}{\myCourseCode \myCourseCredits: \myCourseTitle \\ \myCourseSemester - \myCourseSchedule}
+\newcommand{\myTitle}{\myCourseCode \myCourseCredits: \myCourseTitle \\ 
+	\myCourseSemester - \myCourseSchedule}
 % =========================== Variables ===========================
 
 % =========================== Shortcuts ===========================
 \newcommand{\comment}[1]{}                          % Multiline comments
-\newcommand{\image}[1]{[\textbf{IMAGE MISSING #1}]} % #1 is the descriptor about the image
-\newenvironment{itemize*}{\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{\end{itemize}}
-\newenvironment{enumerate*}{\begin{enumerate}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{\end{enumerate}}
+\newcommand{\image}[1]{[\textbf{IMAGE MISSING #1}]} % #1: descriptor for image
+\newenvironment{itemize*}{
+	\begin{itemize}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+	}
+	{\end{itemize}
+}
+\newenvironment{enumerate*}{
+	\begin{enumerate}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+	}
+	{\end{enumerate}
+}
 % =========================== Shortcuts ===========================
 
 \documentclass{article}
@@ -58,7 +71,7 @@
   breaklines=true
 }
 \begin{document}        % Official beginning of the document. 
-\pagenumbering{roman}   % Use roman numbers before the start of the script so that page numbers are the same as the real script
+\pagenumbering{roman}   % Use roman numbers before the start of script 
 \maketitle              % Make title page
 \newpage                % Insert a page break
 \tableofcontents        % Makes TOC
@@ -66,10 +79,12 @@
 \pagenumbering{arabic}  % Brings the normal numbers back
 
 \section{Introduction}
-This PDF is the collection of my lecture notes for \myCourseCode{} that took place during the \myCourseSemester{} semester. This was taught by \myCourseProf{} for section \myCourseSection{}. This occurs on: \myCourseSchedule{} at \myCourseLocation{}.
+This PDF is the collection of my lecture notes for \myCourseCode{} that took 
+place during the \myCourseSemester{} semester. This was taught by 
+\myCourseProf{} for section \myCourseSection{}. This occurs on: 
+\myCourseSchedule{} at \myCourseLocation{}.
 
 % TODO: Lecture notes here
-
 
 \comment{   % Lecture template
 \section{Lecture: DATE}

@@ -37,10 +37,10 @@
 }
 
 \usepackage{enumitem}   % Allows numbering by alphabet instead of just numbers
-\usepackage{xcolor}     % Used for specific colours (must be defined before pagecolor!)
+\usepackage{xcolor}     % Used for specific colours 
 \usepackage{pagecolor}  % Used for setting page colour
 \usepackage{amsmath}    % Used for aligning equations
-\usepackage{hyperref} % This block contains information used for PDF metadata
+\usepackage{hyperref}	% Information used for PDF metadata
 \hypersetup{
     colorlinks=false, 
     pdfborder={0 0 0},
@@ -50,8 +50,8 @@
     pdfkeywords={}
 }
 
-\newcommand{\comment}[1]{}                          % \comment{Multiline comments can go here.}
-\newcommand{\image}[1]{[\textbf{IMAGE MISSING #1}]} % #1 is whatever descriptor you want to display about the image
+\newcommand{\comment}[1]{}                          % Multiline comment
+\newcommand{\image}[1]{[\textbf{IMAGE: #1}]} % #1 is the image descriptor
 
 \pagecolor{white}       % default page colour (\newpagecolor{c} can set as well in document)
 \color{black}           % default text colour
