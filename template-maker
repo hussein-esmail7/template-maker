@@ -8,6 +8,7 @@
 
 
 # TODO: In LaTeX Documents, if there are underscores in the file title, replace the underscores with spaces when put as arguments in the file (like \title{}, \pdftitle{}, etc.)
+# TODO: If a target filename argument includes an extension, only show options that match that file extension
 
 #########################
 # Default Variables
@@ -21,6 +22,7 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 [[ "$OSTYPE" == "darwin"* ]]    && USERNAME=$(id -F)
 TEMPLATE_FOLDER="$HOME/.config/template-maker/copy/" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
+file_extension_func=$(echo $1 | sed 's/.*\.//') # File extension from the argument
 
 # Parametrically building options list:
 files=("$TEMPLATE_FOLDER"*)                 # Get a list of all the files in the template dir
@@ -28,15 +30,26 @@ DESCRIPTION_STR="templateDescription: "     # The description string is after th
 counter=0                                   # Array index counter
 for full_file_path in ${files[@]}; do       # For each item in the dir
     file_name="${full_file_path##*/}"
-    desc_uncut=$(grep "$DESCRIPTION_STR" "$full_file_path" | head -1)    # Description string
-    desc=$(echo "${desc_uncut##*:}" | xargs)
-    FILE_EXPLANATIONS[$counter]="$desc: $file_name"
-    counter=$((counter+1))                  # Increase array count for next element
+    file_extension="${file_name##*.}"
+    if [[ "$file_extension_func" == $(echo "$file_name" | sed 's/.*\.//') || -z "$file_extension_func" ]] ; then   
+        # If extension matches given extension, only display that file type
+        # If no file name given, display all available types
+        desc_uncut=$(grep "$DESCRIPTION_STR" "$full_file_path" | head -1)       # Description string
+        desc=$(echo "${desc_uncut##*:}" | xargs)                                # File description
+
+        if [[ "$file_extension" == "html" ]] ; then                             # Remove ending of HTML comment
+            desc=$(echo "$desc" | sed 's/-->//')
+        elif [[ "$file_extension" == "css" ]] ; then                            # Remove ending of CSS comment
+            desc=$(echo "$desc" | sed 's/*\///')
+        fi
+
+        FILE_EXPLANATIONS[$counter]="$desc: $file_name"
+        counter=$((counter+1))                  # Increase array count for next element
+    fi
 done
 
 quiet=0                             # Quiet mode is off unless turned on.
 open_file=0                         # Open file after it is created.
-user_chose_filetype=0               # Changed if user types an extension in the arguments
 
 #########################
 # Importing Configurations
@@ -63,7 +76,6 @@ if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "
     TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
 fi
 
-
 #########################
 # Check for missing files
 #########################
@@ -79,7 +91,6 @@ done
 function make_file() { 
     # ${1} = file name without extension
     # ${2} = Desired file name extension
-    file_extension_func=$(echo $2 | sed 's/.*\.//')
     if [[ ! -z "$shebang" || "$shebang" != "" ]]; then
         template_name="${shebang}.$file_extension_func"     # If given a filename in arguments, use that to name the file
     else
@@ -140,9 +151,7 @@ else    # If it isn't a help command, it's a filename
         file_extension="${filename_tmp##*.}"            # File extension only
         TEMPLATE_NAME=${filename_tmp%.$file_extension}  # File name (total text minus the extension)
         TEMPLATE_NAME="${TEMPLATE_NAME%.*}"             # Remove the file extension (or else it will have the extension twice in the name)
-        if [ ! -z "$file_extension" ]; then             # If there is a file extension is given
-            user_chose_filetype=1                       # Do not ask for extension type
-        fi                                              # No else statement because user_chose_filetype is 0 by default
+        
     else                                                # If there were no "." which may have indicated a file type
         TEMPLATE_NAME="$filename_tmp"
     fi
@@ -154,7 +163,7 @@ fi
 
 # If user hasn't chosen a file type in args
 # Display the explanations with file types in fzf, and get the response (formatting: Get string after last '.')
-[ "$user_chose_filetype" -eq 0 ]; file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\: //')
+file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\: //')
 #########################
 # Figure out what the user typed + Call the make_file 
 # function that (you guessed it) makes the file
