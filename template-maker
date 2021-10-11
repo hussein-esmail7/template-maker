@@ -169,7 +169,7 @@ file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}";
 # function that (you guessed it) makes the file
 #########################
 # TODO: Only run if file_name_target is not empty 
-make_file "$TEMPLATE_NAME" "$file_name_target"
+[ -z "$file_name_target" ] ; make_file "$TEMPLATE_NAME" "$file_name_target"
 
 IFS=${O_IFS}    # rollback IFS value
 
