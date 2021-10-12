@@ -7,20 +7,24 @@
 # in the .config folder.
 
 
-# TODO: In LaTeX Documents, if there are underscores in the file title, replace the underscores with spaces when put as arguments in the file (like \title{}, \pdftitle{}, etc.)
-# TODO: If a target filename argument includes an extension, only show options that match that file extension
+# TODO: In LaTeX Documents, if there are underscores in the file title, replace
+#	the underscores with spaces when put as arguments in the file (like \title{},
+#	\pdftitle{}, etc.) 
+# TODO: If a target filename argument includes an extension,
+#	only show options that match that file extension
 
 #########################
 # Default Variables
 #########################
+OS=$(uname)
 O_IFS=$IFS                          # backup IFS value
 IFS=""                              # reset IFS value
 PROMPT_TEXT="File type: "           # Prompt text during input
 DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 # Full name of the user for each OS
-[[ "$OSTYPE" == "linux-gnu"* ]] && USERNAME=$(getent passwd "$(whoami)" | cut -d ':' -f 5)
-[[ "$OSTYPE" == "darwin"* ]]    && USERNAME=$(id -F)
-TEMPLATE_FOLDER="$HOME/.config/template-maker/copy/" # Default folder path (all template files stored here)
+[[ "$OS" == "Linux" ]] && USERNAME=$(getent passwd "$(whoami)" | cut -d ':' -f 5)
+[[ "$OS" == "Darwin" ]] && USERNAME=$(id -F)
+TEMPLATE_FOLDER="$HOME/git/templates/" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 file_extension_func=$(echo $1 | sed 's/.*\.//') # File extension from the argument
 
@@ -66,12 +70,7 @@ else                                            # If the config file doesn't exi
 fi
 
 # Error handling in case of empty strings in config
-if [ -z "$USERNAME" ]; then
-    USERNAME=$(whoami) 
-fi
-if [ -z "$TEMPLATE_NAME" ]; then  
-    TEMPLATE_NAME="template" # Default file name
-fi
+[ -z "$TEMPLATE_NAME" ] ; TEMPLATE_NAME="template" # Default file name
 if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "/", add it there
     TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
 fi
@@ -95,12 +94,14 @@ function make_file() {
         template_name="${shebang}.$file_extension_func"     # If given a filename in arguments, use that to name the file
     else
         template_name="${1}.$file_extension_func"           # If not given any arguments, use the default template name
+        FILE_FRONT="$1"
     fi 
     counter=0
     if [ -f "$template_name" ] ; then               # If the file already exists in the directory
         while [ -f "$template_name" ] ; do          # While the next file exists, find another name  
             ((counter=counter+1))                   # Add 1 to the name counter
             template_name="${1} ($counter).$file_extension_func"    # Make a new name (wikk check on next loop)
+            FILE_FRONT="${1} ($counter)"
         done                                        # Exits loop when it found an unused name
         file_name="$template_name"                  
     else                                            # If the original file name is available
@@ -113,9 +114,9 @@ function make_file() {
     # Format: variable=${variable//ReplaceFrom/ReplaceTo}
     # // is used instead of / before ReplaceFrom to replace all occurences. / just does the first
     file_text=${file_text//"[DATE]"/$DATE_FORMAT}                 # Replace the [DATE] with the actual date with the proper formatting
-    file_text=${file_text//"[CREATOR]"/$USERNAME}                 # Replace [CREATOR] with the user's actual name
-    file_text=${file_text//"[FILE NAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
-    file_text=${file_text//"[FILE FRONT]"/${file_name%.*}}        # File name but without the extension. Mainly used for Java
+    file_text=${file_text//"[AUTHOR]"/${USERNAME}}                 # Replace [CREATOR] with the user's actual name
+    file_text=${file_text//"[FILENAME]"/$file_name}              # Replace all mentions of the file's own name with the actual name
+    file_text=${file_text//"[FILE FRONT]"/${FILE_FRONT}}        # File name but without the extension. Mainly used for Java
 
     if [ "$quiet" -eq 0 ]; then # If quiet mode is off
         echo "$file_name created."
@@ -169,7 +170,7 @@ file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}";
 # function that (you guessed it) makes the file
 #########################
 # TODO: Only run if file_name_target is not empty 
-[ -z "$file_name_target" ] ; make_file "$TEMPLATE_NAME" "$file_name_target"
+[ ! -z "$file_name_target" ] ; make_file "$TEMPLATE_NAME" "$file_name_target"
 
 IFS=${O_IFS}    # rollback IFS value
 
