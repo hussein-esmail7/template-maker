@@ -10,7 +10,6 @@ import os
 import sys
 import re
 from datetime import datetime as date
-import datetime
 
 # ========= COLOR CODES =========
 color_end               = '\033[0m'
@@ -81,8 +80,16 @@ def main():
             print("Please only enter in the correct format.")
     # Confirming Week 1's start date
     week1monday = ""
+    year = semester[:4] # Get inputted year (first 4 characters)
+    partOfYear = semester[4:] # W or F of SU (rest of string after 4 characters)
+    if partOfYear == "W":
+        month = 1 # January
+    elif partOfYear == "F":
+        month = 9 # September
+    elif partOfYear == "SU":
+        month = 5 # Summer semester starts in May (2022: May 9)
     if date.now().month > 1:
-        d = datetime.date(date.now().year+1, 1, 7)
+        d = datetime.date(year, 1, 7)
     else:
         d = datetime.date(date.now().year, 1, 7)
     next_monday = next_weekday(d, 0)
