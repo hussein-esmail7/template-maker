@@ -87,9 +87,15 @@ for file in "${all_filetypes[@]}"; do
 done
 
 # This function finds a filename that does not exist already so it doesn't override any existing files
-function make_file() { 
-    # ${1} = file name without extension
-    # ${2} = Desired file name extension
+function make_file() {
+    # ${1} = Desired file name without extension
+    # ${2} = Template full file name with extension
+	if [[ ! -z $(grep "templateDescription: LaTeX Course Lecture Notes Document" "${TEMPLATE_FOLDER}${2}") ]] ; then
+		# If LaTeX course notes file is selected, run the Python program instead of continuing this program
+		python3 lecture_notes_latex_generator.py "-a" "${USERNAME}" "-f" "${1}.tex"
+		exit 0;
+
+	fi
     if [[ ! -z "$shebang" || "$shebang" != "" ]]; then
         template_name="${shebang}.$file_extension_func"     # If given a filename in arguments, use that to name the file
     else
