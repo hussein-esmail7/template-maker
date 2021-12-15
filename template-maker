@@ -92,7 +92,8 @@ function make_file() {
     # ${2} = Template full file name with extension
 	if [[ ! -z $(grep "templateDescription: LaTeX Course Lecture Notes Document" "${TEMPLATE_FOLDER}${2}") ]] ; then
 		# If LaTeX course notes file is selected, run the Python program instead of continuing this program
-		python3 lecture_notes_latex_generator.py "-a" "${USERNAME}" "-f" "${1}.tex"
+		SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+		python3 "${SCRIPT_DIR}/lecture_notes_latex_generator.py" "-a" "${USERNAME}" "-f" "${1}.tex"
 		exit 0;
 
 	fi
