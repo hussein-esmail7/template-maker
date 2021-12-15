@@ -3,6 +3,7 @@ This program generates those boilerplate files that you always happen to need.
 
 ## Table of Contents
 - [What is this?](#what-is-this)
+- [Requirements](#requirements)
 - [Installation](#installation)
     - [Installing Through Git](#installing-through-git)
 - [Running the Program](#running-the-program)
@@ -11,6 +12,9 @@ This program generates those boilerplate files that you always happen to need.
 ## What is this?
 This program is meant to create the template files that you normally need. My goal is to make it as customizable as possible so you can make it your own.
 
+## Requirements
+- python3
+
 ## Installation
 At the moment, you can only `git clone` this repository, but I an hoping to put it on Homebrew soon.
 
@@ -18,7 +22,7 @@ At the moment, you can only `git clone` this repository, but I an hoping to put 
 ```
 git clone https://github.com/hussein-esmail7/template-maker
 cd template-maker
-./INSTALL
+./install
 ```
 If you want to run this program in Terminal just by typing the program name, you would have to add an alias in your `.bashrc` file. If you do this, you should alias to the `template-maker` file.
 
