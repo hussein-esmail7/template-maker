@@ -10,6 +10,9 @@ Description: This program generates a LaTeX template for School course notes
 # python3 lecture_notes_latex_generator.py -a "Hussein Esmail" -c "EECS 3311" -w "MWF" -l "VC 105" -s "A" -p "Andrew Skelton" -y "2022W" -n "3" -t "Software Design" -f "EECS3311.tex"
 
 # TODO: Account for skipping reading week
+# TODO: Ask for lecture times (during the day)
+# TODO: Account for lab dates and times
+# TODO: Account for tutorial dates and times
 
 import os
 import os.path
