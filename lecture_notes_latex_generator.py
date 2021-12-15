@@ -2,9 +2,12 @@
 lecture_notes_latex_generator.py
 Hussein Esmail
 Created: 2021 12 11
-Updated: 2021 12 11
+Updated: 2021 12 14
 Description: This program generates a LaTeX template for School course notes
 '''
+
+# Test Command:
+# python3 lecture_notes_latex_generator.py -a "Hussein Esmail" -c "EECS 3311" -w "MWF" -l "VC 105" -s "A" -p "Andrew Skelton" -y "2022W" -n "3" -t "Software Design" -f "EECS3311.tex"
 
 import os
 import os.path
