@@ -194,21 +194,21 @@ def main(argv):
     else:
         d = datetime.date(date.now().year, 1, 7)
     next_monday = next_weekday(d, 0)
-    while True:
+    continue_loop = True
+    while continue_loop:
         confirm_weekday = yes_or_no(f"Is the start of {semester} {next_monday.strftime('%Y %m %d')} [y/n]? ")
         if confirm_weekday:
-            break
+            continue_loop = False
         else: # If start date is not correct
             date_correct_input = ""
-            date_correct = ""
+            date_correct = d
             while True:
                 date_correct_input = input(str_prefix_ques + " Input the date in the form of YYYY MM DD: ")
-                if bool(re.match("^[0-9]{4} ^[0-9]{2} ^[0-9]{2}$", date_correct)):
-                    date_correct = datetime.strptime("%Y %m %d", date_correct_str)
-                    if yes_or_no("Is this correct: " + date_correct.strftime('%a %b %d, %Y') + "? "):
-                        d = date_correct
-                else:
-                    print(str_prefix_err + " You must follow the YYYY MM DD format. Example: '2021 01 07'.")
+                date_correct = date.strptime(date_correct_input, "%Y %m %d")
+                if yes_or_no("Is this correct: " + date_correct.strftime('%a %b %d, %Y') + "? "):
+                    continue_loop = False
+                    break
+            d = date_correct
 
     if courseCredits == "": # Ask for number of credits if not given
         # Does not use require_answer() because it has to be a number
