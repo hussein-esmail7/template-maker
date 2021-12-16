@@ -204,7 +204,7 @@ def main(argv):
             while True:
                 date_correct_input = input(str_prefix_ques + " Input the date in the form of YYYY MM DD: ")
                 if bool(re.match("^[0-9]{4} ^[0-9]{2} ^[0-9]{2}$", date_correct)):
-                    date_correct = datetime.strptime(date_correct_str, "%Y %m %d")
+                    date_correct = datetime.strptime("%Y %m %d", date_correct_str)
                     if yes_or_no("Is this correct: " + date_correct.strftime('%a %b %d, %Y') + "? "):
                         d = date_correct
                 else:
