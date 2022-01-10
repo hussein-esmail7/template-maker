@@ -224,7 +224,7 @@ def main(argv):
     lines = open(path_template_dir + path_template_file, "r").readlines()
 
     # Change values in LaTeX template preamble 
-    ncmd = "\\newcommand{\\"
+    ncmd = "\\newcommand{\\" # ncmd = "New Command" prefix string
     lines[index_str(lines, "% [FILENAME]")] = "% " + filename + "\n"
     lines[index_str(lines, "% Author: [AUTHOR]")] = "% Author: " + author + "\n"
     lines[index_str(lines, "% Created: [DATE]")] = "% Created: " + currentDate + "\n"
@@ -238,6 +238,7 @@ def main(argv):
     lines[index_str(lines, ncmd + "myCourseCode")] = ncmd + "myCourseCode}{" + courseCode + "}\n"
     lines[index_str(lines, ncmd + "myCourseTitle")] = ncmd + "myCourseTitle}{" + courseTitle + "}\n"
     lines[index_str(lines, ncmd + "myCourseProf")] = ncmd + "myCourseProf}{" + prof + "}\n"
+    lines[index_str(lines, ncmd + "Prof")] = ncmd + "Prof}{" + prof.split()[0] + "}\n"
     lines[index_str(lines, ncmd + "myCourseSemester")] = ncmd + "myCourseSemester}{" + semester + "}\n"
     lines[index_str(lines, ncmd + "myCourseSchedule")] = ncmd + "myCourseSchedule}{" + weekdays + "}\n"
     lines[index_str(lines, ncmd + "myCourseSection")] = ncmd + "myCourseSection}{" + courseSection + "}\n"
