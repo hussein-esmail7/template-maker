@@ -6,7 +6,6 @@
 # is made from a set of files that are placed 
 # in the .config folder.
 
-
 # TODO: In LaTeX Documents, if there are underscores in the file title, replace
 #	the underscores with spaces when put as arguments in the file (like \title{},
 #	\pdftitle{}, etc.) 
@@ -63,7 +62,7 @@ if [ -f "$CONFIG" ]; then                       # If the config file exists
     source "$CONFIG"                            # Import the settings from there
 else                                            # If the config file doesn't exist
     mkdir -p "$HOME/.config/template-maker"     # Make this directory if it doesn't exist
-    cp "${{BASH_SOURCE[0]}/config" "$CONFIG"    # Copy the config file from the template
+    cp "${BASH_SOURCE[0]}/config" "$CONFIG"		# Copy the config file from the template
     if [ "$quiet" -eq 0 ]; then
         echo "Config file made at $CONFIG"
     fi
