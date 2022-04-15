@@ -175,8 +175,14 @@ file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}";
 # Figure out what the user typed + Call the make_file
 # function that (you guessed it) makes the file
 #########################
-# TODO: Only run if file_name_target is not empty
-[ ! -z "$file_name_target" ] ; make_file "$TEMPLATE_NAME" "$file_name_target"
+if [ "$file_name_target" == "" ] ; then
+	# If the user did not select something from fzf
+	echo "You have not selected a file!"
+	exit 1
+elif [ ! -z "$file_name_target" ] ; then
+	# If the user selected something from fzf
+	make_file "$TEMPLATE_NAME" "$file_name_target"
+fi
 
 IFS=${O_IFS}    # rollback IFS value
 
