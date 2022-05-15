@@ -2,7 +2,7 @@
 lecture_notes_latex_generator.py
 Hussein Esmail
 Created: 2021 12 11
-Updated: 2021 12 14
+Updated: 2022 05 14
 Description: This program generates a LaTeX template for School course notes
 '''
 
@@ -104,8 +104,19 @@ def main(argv):
         print('lecture_notes_latex_generator.py -a <author> -f <file name>')
         sys.exit(2)
     for opt, arg in opts:
-        if opt == '-h':
-            print('lecture_notes_latex_generator.py -a <author> -f <file name>')
+        if opt == '-h': # Help message
+            print("--- lecture_notes_latex_generator.py ---\n")
+            print("Arguments:")
+            print("\t -a, --author:\t\t Author of the notes file")
+            print("\t -f, --filename:\t File name of the document to create")
+            print("\t -c, --course-code:\t Course code of the course these notes are for")
+            print("\t -w, --weekday:\t\t Weekdays this course takes place (MTWRF)")
+            print("\t -l, --location:\t Location of the course")
+            print("\t -s, --section:\t\t Course section")
+            print("\t -p, --prof:\t\t Teacher of this course")
+            print("\t -y, --semester:\t An example can be 2022F for Fall 2022")
+            print("\t -n, --credits:\t\t Number of credits this course has")
+            print("\t -t, --title:\t\t Title of the course")
             sys.exit()
         elif opt in ("-a", "--author"):
             author = arg
@@ -173,7 +184,7 @@ def main(argv):
         # Does not use require_answer() because it has to ckeck regex
         while True:
             semester = input(str_prefix_ques + " Year and Semester (Ex: 2021F): ")
-            if bool(re.match("^[0-9]{4}(W|F|SU)$", semester)):
+            if bool(re.match("^[0-9]{4}(W|F|SU|S1|S2)$", semester)):
                 # Regex: First 4 chars is year, after is term
                 break
             else:
@@ -189,6 +200,11 @@ def main(argv):
         month = 9 # September
     elif partOfYear == "SU":
         month = 5 # Summer semester starts in May (2022: May 9)
+        # Reading week in 2022: June 21-24
+    elif partOfYear == "S1":
+        month = 5 # S1 semester starts in May (2022: May 9)
+    elif partOfYear == "S2":
+        month = 6 # S2 semester starts in June (2022: June 27)
     if date.now().month > 1:
         d = datetime.date(year, 1, 7)
     else:
@@ -223,7 +239,7 @@ def main(argv):
     # Read template file contents
     lines = open(path_template_dir + path_template_file, "r").readlines()
 
-    # Change values in LaTeX template preamble 
+    # Change values in LaTeX template preamble
     ncmd = "\\newcommand{\\" # ncmd = "New Command" prefix string
     lines[index_str(lines, "% [FILENAME]")] = "% " + filename + "\n"
     lines[index_str(lines, "% Author: [AUTHOR]")] = "% Author: " + author + "\n"
@@ -243,7 +259,7 @@ def main(argv):
     lines[index_str(lines, ncmd + "myCourseSchedule")] = ncmd + "myCourseSchedule}{" + weekdays + "}\n"
     lines[index_str(lines, ncmd + "myCourseSection")] = ncmd + "myCourseSection}{" + courseSection + "}\n"
     lines[index_str(lines, ncmd + "myCourseLocation")] = ncmd + "myCourseLocation}{" + courseLocation + "}\n"
-    
+
     # Index of where to insert new lines
     line_insert = index_str(lines, "% TODO: Lecture notes here")
 
