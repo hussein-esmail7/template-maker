@@ -80,6 +80,16 @@ def index_str(list, search_str):
             return num
     return -1
 
+def rep_arr_val(list, search_str, str):
+    # Replaces all values of a string with a new one within an array
+    # list: array to search
+    # search_str: String to replace
+    # str: New string
+    for num, item in enumerate(list): # for every index in the array
+        if search_str in item: # If the index contains the string to replace
+            item.replace(search_str, str) # Replace the string
+    return list # Return the new list with changed values
+
 def main(argv):
     author = "Hussein Esmail"
     filename = ""
@@ -240,25 +250,50 @@ def main(argv):
     lines = open(path_template_dir + path_template_file, "r").readlines()
 
     # Change values in LaTeX template preamble
-    ncmd = "\\newcommand{\\" # ncmd = "New Command" prefix string
-    lines[index_str(lines, "% [FILENAME]")] = "% " + filename + "\n"
-    lines[index_str(lines, "% Author: [AUTHOR]")] = "% Author: " + author + "\n"
+    ncmd = "\\def\\" # ncmd = "New Command" prefix string
+    lines = rep_arr_val(lines, "[FILENAME]", filename) # File name
+    lines = rep_arr_val(lines, "[AUTHOR]", author) # Author of these notes (you)
+    lines = rep_arr_val(lines, "[DATE]", currentDate) # Today
+    lines = rep_arr_val(lines, "[DESC]", f"Course notes for {courseCode}") # File description (as a comment, mainly)
+    lines = rep_arr_val(lines, "[SUBJ]", f"Lecture notes for {courseCode} in {semester}") # Subject
+    lines = rep_arr_val(lines, "[KEYWORDS]", f"{courseCode}, York University") # TODO: Make the York University part parametric later
+    lines = rep_arr_val(lines, "[COURSE-CREATED-DATE]", currentDate)
+    lines = rep_arr_val(lines, "[COURSE-CREDITS]", str(courseCredits))
+    lines = rep_arr_val(lines, "[COURSE-CODE]", courseCode)
+    lines = rep_arr_val(lines, "[COURSE-TITLE]", courseTitle)
+    lines = rep_arr_val(lines, "[COURSE-PROF]", prof) # Prof's full name
+    lines = rep_arr_val(lines, "[PROF]", prof.split()[0]) # Prof by informal name within notes
+    lines = rep_arr_val(lines, "[]", )
+    lines = rep_arr_val(lines, "[]", )
+    lines = rep_arr_val(lines, "[]", )
+    lines = rep_arr_val(lines, "[]", )
+    lines = rep_arr_val(lines, "[]", )
+
+    # lines = rep_arr_val(lines, "[]", )
+
+    # TODO: Continue here before running program
+
+
+
+
+    lines[index_str(lines, "% [FILENAME]")] = "% " + filename + "\n" # [FILENAME]
+    lines[index_str(lines, "% Author: [AUTHOR]")] = "% Author: " + author + "\n" # [AUTHOR]
     lines[index_str(lines, "% Created: [DATE]")] = "% Created: " + currentDate + "\n"
     lines[index_str(lines, "% Updated: [DATE]")] = "% Updated: " + currentDate + "\n"
     lines[index_str(lines, "% Description: [DESCRIPTION]")] = "% Description: Course notes for " + courseCode + "\n"
-    lines[index_str(lines, ncmd + "myAuthor")] = ncmd + "myAuthor}{" + author + "}\n"
-    lines[index_str(lines, ncmd + "mySubject")] = ncmd + "mySubject}{Lecture notes for " + courseCode + " in " + semester + "}\n"
-    lines[index_str(lines, ncmd + "myKeywords")] = ncmd + "myKeywords}{" + courseCode + ", York University}\n"
-    lines[index_str(lines, ncmd + "myCourseDateCreated")] = ncmd + "myCourseDateCreated}{" + currentDate + "}\n"
-    lines[index_str(lines, ncmd + "myCourseCredits")] = ncmd + "myCourseCredits}{" + str(courseCredits) + "}\n"
-    lines[index_str(lines, ncmd + "myCourseCode")] = ncmd + "myCourseCode}{" + courseCode + "}\n"
-    lines[index_str(lines, ncmd + "myCourseTitle")] = ncmd + "myCourseTitle}{" + courseTitle + "}\n"
-    lines[index_str(lines, ncmd + "myCourseProf")] = ncmd + "myCourseProf}{" + prof + "}\n"
-    lines[index_str(lines, ncmd + "Prof")] = ncmd + "Prof}{" + prof.split()[0] + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSemester")] = ncmd + "myCourseSemester}{" + semester + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSchedule")] = ncmd + "myCourseSchedule}{" + weekdays + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSection")] = ncmd + "myCourseSection}{" + courseSection + "}\n"
-    lines[index_str(lines, ncmd + "myCourseLocation")] = ncmd + "myCourseLocation}{" + courseLocation + "}\n"
+    lines[index_str(lines, ncmd + "myAuthor")] = ncmd + "myAuthor{" + author + "}\n"
+    lines[index_str(lines, ncmd + "mySubject")] = ncmd + "mySubject{Lecture notes for " + courseCode + " in " + semester + "}\n"
+    lines[index_str(lines, ncmd + "myKeywords")] = ncmd + "myKeywords{" + courseCode + ", York University}\n"
+    lines[index_str(lines, ncmd + "myCourseDateCreated")] = ncmd + "myCourseDateCreated{" + currentDate + "}\n"
+    lines[index_str(lines, ncmd + "myCourseCredits")] = ncmd + "myCourseCredits{" + str(courseCredits) + "}\n"
+    lines[index_str(lines, ncmd + "myCourseCode")] = ncmd + "myCourseCode{" + courseCode + "}\n"
+    lines[index_str(lines, ncmd + "myCourseTitle")] = ncmd + "myCourseTitle{" + courseTitle + "}\n"
+    lines[index_str(lines, ncmd + "myCourseProf")] = ncmd + "myCourseProf{" + prof + "}\n"
+    lines[index_str(lines, ncmd + "Prof")] = ncmd + "Prof{" + prof.split()[0] + "}\n"
+    lines[index_str(lines, ncmd + "myCourseSemester")] = ncmd + "myCourseSemester{" + semester + "}\n"
+    lines[index_str(lines, ncmd + "myCourseSchedule")] = ncmd + "myCourseSchedule{" + weekdays + "}\n"
+    lines[index_str(lines, ncmd + "myCourseSection")] = ncmd + "myCourseSection{" + courseSection + "}\n"
+    lines[index_str(lines, ncmd + "myCourseLocation")] = ncmd + "myCourseLocation{" + courseLocation + "}\n"
 
     # Index of where to insert new lines
     line_insert = index_str(lines, "% TODO: Lecture notes here")
