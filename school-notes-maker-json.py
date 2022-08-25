@@ -87,7 +87,9 @@ def rep_arr_val(list, search_str, str):
     # str: New string
     for num, item in enumerate(list): # for every index in the array
         if search_str in item: # If the index contains the string to replace
-            item.replace(search_str, str) # Replace the string
+            print(f"Replaced: \n\t{item}", end="")
+            list[num] = item.replace(search_str, str) # Replace the string
+            print(f"\t{list[num]}")
     return list # Return the new list with changed values
 
 def main(argv):
@@ -97,7 +99,8 @@ def main(argv):
     path_template_file = "lecture-template.tex"
     currentDate = date.now().strftime("%Y %m %d")
     lines_append = []
-    weekdays = ""
+    weekdays = ["", "", ""] # [Lecture weekdays, Tutorial weekdays, Lab weekdays]
+    weekdays_order = ["Lectures", "Tutorials", "Labs"]
     courseCode = ""
     courseLocation = ""
     courseTitle = ""
@@ -120,7 +123,8 @@ def main(argv):
             print("\t -a, --author:\t\t Author of the notes file")
             print("\t -f, --filename:\t File name of the document to create")
             print("\t -c, --course-code:\t Course code of the course these notes are for")
-            print("\t -w, --weekday:\t\t Weekdays this course takes place (MTWRF)")
+            # TODO: Update help message to have separate weekday arguments for lectures, tutorials, labs
+            # print("\t -w, --weekday:\t\t Weekdays this course takes place (MTWRF)")
             print("\t -l, --location:\t Location of the course")
             print("\t -s, --section:\t\t Course section")
             print("\t -p, --prof:\t\t Teacher of this course")
@@ -134,8 +138,9 @@ def main(argv):
             filename = arg
         elif opt in ("-c", "--course-code"):
             courseCode = arg
-        elif opt in ("-w", "--weekday"):
-            weekdays = arg
+        # TODO: Reformat weekdays argument to be specific to lectures, tutorials, labs
+        # elif opt in ("-w", "--weekday"):
+        #    weekdays = arg
         elif opt in ("-l", "--location"):
             courseLocation = arg
         elif opt in ("-s", "--section"):
@@ -154,14 +159,20 @@ def main(argv):
     if courseCode == "": # If course code was not given in initial run line
         courseCode = require_answer("Course code (with spaces): ")
 
-    if weekdays == "": # If weekdays the course occues was not given before
-        # Does not use require_answer() because it has to check weekday regex
-        while True:
-            weekdays = input(str_prefix_ques + " Input weekdays this course happens (MTWRF): ").strip().replace(" ", "")
-            if bool(re.match("^[MTWRFmtwrf]+$", weekdays)):
-                break
-            else:
-                print("Please only enter only MTWRF characters!")
+    # Asking if this course has Lectures, Tutorials, Labs
+    print(f"{str_prefix_info} About to ask which weekdays for Lectures, Tutorials, Labs" )
+    # TODO: change the hardcoded "Lecture, Tutorials, Labs" for the line above to refer to weekdays_order array later
+
+    for weekday_type, weekday_type_num in enumerate(weekdays): # Weekday values, all initially ""
+        weekday_type_str = weekdays_order[weekday_type_num] # "Lecture", "Tutorials", or "Labs". Used for asking the user to input each type
+        if weekday_type == "": # If weekdays the course occurs not given
+            # Do not use require_answer() because it has to check weekday regex
+            while True:
+                weekdays[weekday_type_num] = input(str_prefix_ques + " Input weekdays this course happens (MTWRF): ").strip().replace(" ", "")
+                if bool(re.match("^[MTWRFmtwrf]+$", weekdays)): # Weekday regex
+                    break
+                else:
+                    print(f"{str_prefix_err} Please only enter only MTWRF characters!")
 
     if courseLocation == "": # Ask course location if not given before
         courseLocation = require_answer("Location of this course: ")
@@ -209,16 +220,23 @@ def main(argv):
     elif partOfYear == "F":
         month = 9 # September
     elif partOfYear == "SU":
+        d = datetime.date(year, 5, 7) # 2nd Monday of May
+        next_monday = next_weekday(d, 0)
         month = 5 # Summer semester starts in May (2022: May 9)
         # Reading week in 2022: June 21-24
     elif partOfYear == "S1":
+        d = datetime.date(year, 5, 7) # 2nd Monday of May
+        next_monday = next_weekday(d, 0)
         month = 5 # S1 semester starts in May (2022: May 9)
+        # Exams week in 2022: June 21-24
     elif partOfYear == "S2":
         month = 6 # S2 semester starts in June (2022: June 27)
-    if date.now().month > 1:
-        d = datetime.date(year, 1, 7)
-    else:
-        d = datetime.date(date.now().year, 1, 7)
+    # If the current month is after January
+    # if date.now().month > 1:
+    #     d = datetime.date(year, 1, 7)
+    # else:
+    #     d = datetime.date(date.now().year, 1, 7)
+
     next_monday = next_weekday(d, 0)
     continue_loop = True
     while continue_loop:
@@ -262,38 +280,14 @@ def main(argv):
     lines = rep_arr_val(lines, "[COURSE-CODE]", courseCode)
     lines = rep_arr_val(lines, "[COURSE-TITLE]", courseTitle)
     lines = rep_arr_val(lines, "[COURSE-PROF]", prof) # Prof's full name
+    lines = rep_arr_val(lines, "[COURSE-SEMESTER]", semester) # Prof's full name
+    lines = rep_arr_val(lines, "[COURSE-SCHEDULE]", weekdays)
+    lines = rep_arr_val(lines, "[COURSE-SECTION]", courseSection)
+    lines = rep_arr_val(lines, "[COURSE-LOCATION]", courseLocation)
     lines = rep_arr_val(lines, "[PROF]", prof.split()[0]) # Prof by informal name within notes
-    lines = rep_arr_val(lines, "[]", )
-    lines = rep_arr_val(lines, "[]", )
-    lines = rep_arr_val(lines, "[]", )
-    lines = rep_arr_val(lines, "[]", )
-    lines = rep_arr_val(lines, "[]", )
 
     # lines = rep_arr_val(lines, "[]", )
-
     # TODO: Continue here before running program
-
-
-
-
-    lines[index_str(lines, "% [FILENAME]")] = "% " + filename + "\n" # [FILENAME]
-    lines[index_str(lines, "% Author: [AUTHOR]")] = "% Author: " + author + "\n" # [AUTHOR]
-    lines[index_str(lines, "% Created: [DATE]")] = "% Created: " + currentDate + "\n"
-    lines[index_str(lines, "% Updated: [DATE]")] = "% Updated: " + currentDate + "\n"
-    lines[index_str(lines, "% Description: [DESCRIPTION]")] = "% Description: Course notes for " + courseCode + "\n"
-    lines[index_str(lines, ncmd + "myAuthor")] = ncmd + "myAuthor{" + author + "}\n"
-    lines[index_str(lines, ncmd + "mySubject")] = ncmd + "mySubject{Lecture notes for " + courseCode + " in " + semester + "}\n"
-    lines[index_str(lines, ncmd + "myKeywords")] = ncmd + "myKeywords{" + courseCode + ", York University}\n"
-    lines[index_str(lines, ncmd + "myCourseDateCreated")] = ncmd + "myCourseDateCreated{" + currentDate + "}\n"
-    lines[index_str(lines, ncmd + "myCourseCredits")] = ncmd + "myCourseCredits{" + str(courseCredits) + "}\n"
-    lines[index_str(lines, ncmd + "myCourseCode")] = ncmd + "myCourseCode{" + courseCode + "}\n"
-    lines[index_str(lines, ncmd + "myCourseTitle")] = ncmd + "myCourseTitle{" + courseTitle + "}\n"
-    lines[index_str(lines, ncmd + "myCourseProf")] = ncmd + "myCourseProf{" + prof + "}\n"
-    lines[index_str(lines, ncmd + "Prof")] = ncmd + "Prof{" + prof.split()[0] + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSemester")] = ncmd + "myCourseSemester{" + semester + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSchedule")] = ncmd + "myCourseSchedule{" + weekdays + "}\n"
-    lines[index_str(lines, ncmd + "myCourseSection")] = ncmd + "myCourseSection{" + courseSection + "}\n"
-    lines[index_str(lines, ncmd + "myCourseLocation")] = ncmd + "myCourseLocation{" + courseLocation + "}\n"
 
     # Index of where to insert new lines
     line_insert = index_str(lines, "% TODO: Lecture notes here")
