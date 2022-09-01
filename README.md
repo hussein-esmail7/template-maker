@@ -18,7 +18,7 @@ goal is to make it as customizable as possible so you can make it your own.
 - fzf
 
 ## Installation
-At the moment, you can only `git clone` this repository, but I an hoping to put
+At the moment, you can only `git clone` this repository, but I am hoping to put
 it on Homebrew soon.
 
 ### Installing Through Git
@@ -29,7 +29,7 @@ cd template-maker
 ```
 If you want to run this program in Terminal just by typing the program name,
 you would have to add an alias in your `.bashrc` file. If you do this, you
-should alias to the `template-maker` file. Example: 
+should alias to the `template-maker` file. Example:
 ```
 alias template='path/to/folder/template-maker/template-maker'
 ```
