@@ -141,8 +141,8 @@ function make_file() {
 # Arguments handled here
 #########################
 
-filename_tmp="'$*'"                                     # This is a collection of all arguments separated by space
-if [ "$filename_tmp" == "-h" ]; then                    # Help message
+filename_tmp="'$*'"                     # This is a collection of all arguments separated by space
+if [ "$filename_tmp" == "-h" ]; then    # Help message
     echo "=== template-maker ==="
     echo "Help message here"
     echo "-h:   Print this message."
@@ -151,14 +151,17 @@ if [ "$filename_tmp" == "-h" ]; then                    # Help message
     echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
     exit 0                                              # Exit the program after this message is printed
 else    # If it isn't a help command, it's a filename
+    # At this point, there may be quotations in the filename variable.
+    # Ex. 'Somefilename.tex' --> Somefilename.tex
+	filename_tmp="${filename_tmp%\'}" # Remove the ' quotation at end of string
+	filename_tmp="${filename_tmp#\'}" # Remove the ' quotation at start of string
+	# $filename_tmp is now the ready version of the file name to use
     num_dots=$(echo "${filename_tmp}" | awk -F"." '{print NF-1}')
-    filename_tmp="${filename_tmp:1}"                    # Remove the ' at the beginning of the string
-    filename_tmp="${filename_tmp::-1}"                  # Remove the ' at the end of the string
+	# ^ Get the number of "." there are, to see if user gave the file extension
     if [ "$num_dots" -ge 1 ]; then                      # If there is a "." (whether a file type is after it comes later)
         file_extension="${filename_tmp##*.}"            # File extension only
         TEMPLATE_NAME=${filename_tmp%.$file_extension}  # File name (total text minus the extension)
         TEMPLATE_NAME="${TEMPLATE_NAME%.*}"             # Remove the file extension (or else it will have the extension twice in the name)
-
     else                                                # If there were no "." which may have indicated a file type
         TEMPLATE_NAME="$filename_tmp"
     fi
