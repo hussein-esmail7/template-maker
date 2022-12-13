@@ -7,6 +7,7 @@ This program generates those boilerplate files that you always happen to need.
 - [Installation](#installation)
     - [Installing Through Git](#installing-through-git)
 - [Running the Program](#running-the-program)
+- [Arguments](#arguments)
 - [Donate](#donate)
 
 ## What is this?
@@ -19,7 +20,7 @@ goal is to make it as customizable as possible so you can make it your own.
 
 ## Installation
 At the moment, you can only `git clone` this repository, but I am hoping to put
-it on Homebrew soon.
+it on Homebrew/AUR soon.
 
 ### Installing Through Git
 ```
@@ -46,7 +47,7 @@ Personally, I assigned the file `template-maker` as an alias in my `.bashrc` so
 whichever directory I'm in, I can just type `template <args>` and it will make
 the file I need right there.
 
-### Arguments
+## Arguments
 When running this program, you can pass the file name with an extension in the command line arguments. If you don't, it will ask you what type of file you want and will use the default or pre-defined file name.
 
 ## Donate
