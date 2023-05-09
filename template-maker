@@ -26,6 +26,8 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 TEMPLATE_FOLDER="$HOME/git/templates/" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 file_extension_func=$(echo $1 | sed 's/.*\.//') # File extension from the argument
+quiet=0                             # Quiet mode is off unless turned on.
+open_file=0                         # Open file after it is created.
 
 # Parametrically building options list:
 files=("$TEMPLATE_FOLDER"*)                 # Get a list of all the files in the template dir
@@ -33,16 +35,16 @@ DESCRIPTION_STR="templateDescription: "     # The description string is after th
 counter=0                                   # Array index counter
 for full_file_path in ${files[@]}; do       # For each item in the dir
     file_name="${full_file_path##*/}"
-    file_extension="${file_name##*.}"
+    FILE_SUFFIX="${file_name##*.}"
     if [[ "$file_extension_func" == $(echo "$file_name" | sed 's/.*\.//') || -z "$file_extension_func" ]] ; then
         # If extension matches given extension, only display that file type
         # If no file name given, display all available types
         desc_uncut=$(grep "$DESCRIPTION_STR" "$full_file_path" | head -1)       # Description string
         desc=$(echo "${desc_uncut##*:}" | xargs)                                # File description
 
-        if [[ "$file_extension" == "html" ]] ; then                             # Remove ending of HTML comment
+        if [[ "$FILE_SUFFIX" == "html" ]] ; then                             # Remove ending of HTML comment
             desc=$(echo "$desc" | sed 's/-->//')
-        elif [[ "$file_extension" == "css" ]] ; then                            # Remove ending of CSS comment
+        elif [[ "$FILE_SUFFIX" == "css" ]] ; then                            # Remove ending of CSS comment
             desc=$(echo "$desc" | sed 's/*\///')
         fi
 
@@ -51,12 +53,8 @@ for full_file_path in ${files[@]}; do       # For each item in the dir
     fi
 done
 
-quiet=0                             # Quiet mode is off unless turned on.
-open_file=0                         # Open file after it is created.
 
-#########################
-# Importing Configurations
-#########################
+# Import Configurations
 CONFIG=$HOME/.config/template-maker/config      # Source the config file
 if [ -f "$CONFIG" ]; then                       # If the config file exists
     source "$CONFIG"                            # Import the settings from there
@@ -69,14 +67,12 @@ else                                            # If the config file doesn't exi
 fi
 
 # Error handling in case of empty strings in config
-[ -z "$TEMPLATE_NAME" ] ; TEMPLATE_NAME="template" # Default file name
+[ -z "$FILE_PREFIX" ] ; FILE_PREFIX="template" # Default file name
 if [ "${TEMPLATE_FOLDER: -1}" != "/" ] ; then # If the last character is not a "/", add it there
     TEMPLATE_FOLDER="${TEMPLATE_FOLDER}/"
 fi
 
-#########################
 # Check for missing files
-#########################
 for file in "${all_filetypes[@]}"; do
     amount_files=$(ls -1 "${TEMPLATE_FOLDER}"*."${file}" 2>/dev/null | wc -l) # How many files in the directory
     if [[ $amount_files == 0 && "$quiet" -eq 0 ]] ; then
@@ -85,7 +81,7 @@ for file in "${all_filetypes[@]}"; do
     fi
 done
 
-# This function finds a filename that does not exist already so it doesn't override any existing files
+# Function: finds a filename that does not exist already so it doesn't override any existing files
 function make_file() {
     # ${1} = Desired file name without extension
     # ${2} = Template full file name with extension
@@ -137,37 +133,22 @@ function make_file() {
     exit 0
 }
 
-#########################
-# Arguments handled here
-#########################
-
-filename_tmp="'$*'"                                     # This is a collection of all arguments separated by space
-if [ "$filename_tmp" == "-h" ]; then                    # Help message
+# Arguments handled here ------------------------------------------------------
+args="$*"                                     # This is a collection of all arguments separated by space
+if [ "$args" == "-h" ]; then                    # Help message
     echo "=== template-maker ==="
     echo "Help message here"
     echo "-h:   Print this message."
     echo "-f:   Input the file name. If you provide an extension here, it will automatically recognize it."
     echo "-e:   Extension of the output file. If an extension is provided, the program won't have to ask you for a file type."
     echo "-q:   Quiet mode. It will only print necessary lines, like asking for file type if one wasn't given."
-    exit 0                                              # Exit the program after this message is printed
+    exit 0
 else    # If it isn't a help command, it's a filename
-    num_dots=$(echo "${filename_tmp}" | awk -F"." '{print NF-1}')
-    filename_tmp="${filename_tmp:1}"                    # Remove the ' at the beginning of the string
-    filename_tmp="${filename_tmp::-1}"                  # Remove the ' at the end of the string
-    if [ "$num_dots" -ge 1 ]; then                      # If there is a "." (whether a file type is after it comes later)
-        file_extension="${filename_tmp##*.}"            # File extension only
-        TEMPLATE_NAME=${filename_tmp%.$file_extension}  # File name (total text minus the extension)
-        TEMPLATE_NAME="${TEMPLATE_NAME%.*}"             # Remove the file extension (or else it will have the extension twice in the name)
-
-    else                                                # If there were no "." which may have indicated a file type
-        TEMPLATE_NAME="$filename_tmp"
-    fi
+	FILE_PREFIX=$(echo "$args" | sed 's/\(.*\)\..*/\1/')	# Get everything until the last occurence of "." (file name)
+	FILE_SUFFIX=$(echo "$args" | sed 's/.*\.//')			# Get everything after the last occurence of "." (extension)
 fi
 
-#########################
-# Asks for the option choice
-#########################
-
+# Asks for the option choice --------------------------------------------------
 # If user hasn't chosen a file type in args
 # Display the explanations with file types in fzf, and get the response (formatting: Get string after last '.')
 file_name_target=$(for explain in ${FILE_EXPLANATIONS[@]}; do echo "${explain}"; done | fzf | sed 's/.*\: //')
@@ -181,7 +162,7 @@ if [ "$file_name_target" == "" ] ; then
 	exit 1
 elif [ ! -z "$file_name_target" ] ; then
 	# If the user selected something from fzf
-	make_file "$TEMPLATE_NAME" "$file_name_target"
+	make_file "$FILE_PREFIX" "$file_name_target"
 fi
 
 IFS=${O_IFS}    # rollback IFS value
