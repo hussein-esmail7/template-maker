@@ -23,7 +23,7 @@ DATE_FORMAT=$(date '+%Y %m %d')     # Based from date format in `man date`
 # Full name of the user for each OS
 [[ "$OS" == "Linux" ]] && USERNAME=$(getent passwd "$(whoami)" | cut -d ':' -f 5)
 [[ "$OS" == "Darwin" ]] && USERNAME=$(id -F)
-TEMPLATE_FOLDER="$HOME/git/templates/" # Default folder path (all template files stored here)
+TEMPLATE_FOLDER="$HOME/git/templates/templates/" # Default folder path (all template files stored here)
 all_filetypes=("c" "cpp" "css" "html" "java" "ms" "py" "sh" "tex") # Used for checking available file types && if template file is in 'copy' directory
 file_extension_func=$(echo $1 | sed 's/.*\.//') # File extension from the argument
 quiet=0                             # Quiet mode is off unless turned on.
